@@ -1,0 +1,232 @@
+     1                                  ;****************************************************************************************************************************
+     2                                  ;Program name: "Rectangle".  This program takes in the user input of height and width in float and calculates perimeter and average side length. Copyright (C) 2021 Johnson Tong.                                                                           *
+     3                                  ;                                                                                                                           *
+     4                                  ;This file is part of the software program "Rectangle".                                                                   *
+     5                                  ;Rectangle is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+     6                                  ;version 3 as published by the Free Software Foundation.                                                                    *
+     7                                  ;Rectangle is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+     8                                  ;warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
+     9                                  ;A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
+    10                                  ;****************************************************************************************************************************
+    11                                  
+    12                                  
+    13                                  
+    14                                  
+    15                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    16                                  ;
+    17                                  ;Author information
+    18                                  ;  Author name: Johnson Tong
+    19                                  ;  Author email: jt28@csu.fullerton.edu
+    20                                  ;
+    21                                  ;Program information
+    22                                  ;  Program name: Rectangle
+    23                                  ;  Programming languages: One modules in C and one module in X86
+    24                                  ;  Date program began: 2021 Feb 05
+    25                                  ;  Date of last update: 2021 Feb 12
+    26                                  ;
+    27                                  ;  Files in this program: rectangle.c, perimeter.asm
+    28                                  ;  Status: Finished.
+    29                                  ;
+    30                                  ;This file
+    31                                  ;   File name: perimeter.asm
+    32                                  ;   Language: X86 with Intel syntax.
+    33                                  ;   Max page width: 132 columns
+    34                                  ;   Assemble: nasm -f elf64 -l perimeter.lis -o perimeter.o perimeter.asm
+    35                                  
+    36                                  ;===== Begin code area ================================================================================================
+    37                                  
+    38                                  extern printf
+    39                                  extern scanf
+    40                                  global perimeter
+    41                                  
+    42                                  segment .data
+    43 00000000 57656C636F6D652074-     welcome db "Welcome to a friendly assembly program by Johnson Tong",10,0
+    43 00000009 6F206120667269656E-
+    43 00000012 646C7920617373656D-
+    43 0000001B 626C792070726F6772-
+    43 00000024 616D206279204A6F68-
+    43 0000002D 6E736F6E20546F6E67-
+    43 00000036 0A00               
+    44 00000038 546869732070726F67-     welcome2 db "This program will compute the perimeter and the average side length of a rectangle.", 10, 0
+    44 00000041 72616D2077696C6C20-
+    44 0000004A 636F6D707574652074-
+    44 00000053 686520706572696D65-
+    44 0000005C 74657220616E642074-
+    44 00000065 686520617665726167-
+    44 0000006E 652073696465206C65-
+    44 00000077 6E677468206F662061-
+    44 00000080 2072656374616E676C-
+    44 00000089 652E0A00           
+    45                                  
+    46 0000008D 456E74657220746865-     input1prompt db "Enter the height: ",0
+    46 00000096 206865696768743A20-
+    46 0000009F 00                 
+    47 000000A0 456E74657220746865-     input2prompt db "Enter the width: ", 0
+    47 000000A9 2077696474683A2000 
+    48                                  
+    49 000000B2 256C6600                one_float_format db "%lf",0
+    50                                  
+    51 000000B6 54686520706572696D-     output_perimeter_float db "The perimeter is %.15lf.",10,0
+    51 000000BF 657465722069732025-
+    51 000000C8 2E31356C662E0A00   
+    52 000000D0 546865206C656E6774-     output_average_float db "The length of the average side is %.15lf.", 10, 0
+    52 000000D9 68206F662074686520-
+    52 000000E2 617665726167652073-
+    52 000000EB 69646520697320252E-
+    52 000000F4 31356C662E0A00     
+    53                                  
+    54 000000FB 4920686F706520796F-     goodbye db "I hope you enjoyed your rectangle.",10,0
+    54 00000104 7520656E6A6F796564-
+    54 0000010D 20796F757220726563-
+    54 00000116 74616E676C652E0A00 
+    55 0000011F 54686520617373656D-     goodbye2 db "The assembly program will send the perimeter to the main function.", 10,0
+    55 00000128 626C792070726F6772-
+    55 00000131 616D2077696C6C2073-
+    55 0000013A 656E64207468652070-
+    55 00000143 6572696D6574657220-
+    55 0000014C 746F20746865206D61-
+    55 00000155 696E2066756E637469-
+    55 0000015E 6F6E2E0A00         
+    56                                  
+    57 00000163 0000000000001040        four dq 4.0
+    58                                  
+    59                                  segment .bss
+    60                                  
+    61                                  segment .text
+    62                                  
+    63                                  perimeter:
+    64                                  ;Prolog ===== Insurance for any caller of this assembly module ========================================================
+    65                                  ;Any future program calling this module that the data in the caller's GPRs will not be modified.
+    66 00000000 55                      push rbp
+    67 00000001 4889E5                  mov  rbp,rsp
+    68 00000004 57                      push rdi                                                    ;Backup rdi
+    69 00000005 56                      push rsi                                                    ;Backup rsi
+    70 00000006 52                      push rdx                                                    ;Backup rdx
+    71 00000007 51                      push rcx                                                    ;Backup rcx
+    72 00000008 4150                    push r8                                                     ;Backup r8
+    73 0000000A 4151                    push r9                                                     ;Backup r9
+    74 0000000C 4152                    push r10                                                    ;Backup r10
+    75 0000000E 4153                    push r11                                                    ;Backup r11
+    76 00000010 4154                    push r12                                                    ;Backup r12
+    77 00000012 4155                    push r13                                                    ;Backup r13
+    78 00000014 4156                    push r14                                                    ;Backup r14
+    79 00000016 4157                    push r15                                                    ;Backup r15
+    80 00000018 53                      push rbx                                                    ;Backup rbx
+    81 00000019 9C                      pushf                                                       ;Backup rflags
+    82                                  
+    83                                  ;Registers rax, rip, and rsp are usually not backed up.
+    84 0000001A 6A00                    push qword 0
+    85                                  ; Display the welcome messages
+    86 0000001C B800000000              mov rax, 0                  ;printf uses no data from xmm registers
+    87 00000021 48BF-                   mov rdi, welcome            ;"Welcome to a friendly assembly program by Johnson Tong"
+    87 00000023 [0000000000000000] 
+    88 0000002B E8(00000000)            call printf
+    89                                  
+    90 00000030 6A00                    push qword 0
+    91 00000032 B800000000              mov rax, 0
+    92 00000037 48BF-                   mov rdi, welcome2
+    92 00000039 [3800000000000000] 
+    93 00000041 E8(00000000)            call printf
+    94 00000046 58                      pop rax
+    95                                  
+    96                                  ;=========begin inputs for height and width===================
+    97 00000047 6A00                    push qword 0
+    98                                  ;Display a prompt message asking for inputs
+    99 00000049 B800000000              mov rax, 0
+   100 0000004E 48BF-                   mov rdi, input1prompt         ;"Enter the height: "
+   100 00000050 [8D00000000000000] 
+   101 00000058 E8(00000000)            call printf
+   102 0000005D 58                      pop rax
+   103                                  
+   104                                  ;Begin the scanf block
+   105 0000005E 6A00                    push qword 0
+   106 00000060 B801000000              mov rax, 1
+   107 00000065 48BF-                   mov rdi, one_float_format
+   107 00000067 [B200000000000000] 
+   108 0000006F 4889E6                  mov rsi, rsp
+   109 00000072 E8(00000000)            call scanf
+   110 00000077 F2440F101424            movsd xmm10, [rsp]
+   111 0000007D 58                      pop rax
+   112                                  
+   113 0000007E 6A00                    push qword 0
+   114                                  ;Display a prompt message asking for inputs
+   115 00000080 B800000000              mov rax, 0
+   116 00000085 48BF-                   mov rdi, input2prompt       ; "Enter the width: "
+   116 00000087 [A000000000000000] 
+   117 0000008F E8(00000000)            call printf
+   118 00000094 58                      pop rax
+   119                                  
+   120                                  ;Begin the scanf block
+   121 00000095 6A00                    push qword 0
+   122 00000097 B801000000              mov rax, 1
+   123 0000009C 48BF-                   mov rdi, one_float_format
+   123 0000009E [B200000000000000] 
+   124 000000A6 4889E6                  mov rsi, rsp
+   125 000000A9 E8(00000000)            call scanf
+   126 000000AE F2440F101C24            movsd xmm11, [rsp]
+   127 000000B4 58                      pop rax
+   128                                  
+   129                                  
+   130                                  
+   131                                  ;=================Calculate perimeter=====================
+   132 000000B5 F2450F10E2              movsd xmm12, xmm10             ; preserve the height
+   133 000000BA F2450F10EB              movsd xmm13, xmm11             ; preserve the width
+   134 000000BF F2450F58E3              addsd xmm12, xmm11
+   135 000000C4 F2450F58EA              addsd xmm13, xmm10
+   136 000000C9 F2450F58E5              addsd xmm12, xmm13
+   137                                  
+   138 000000CE 6A00                    push qword 0
+   139 000000D0 B801000000              mov rax, 1
+   140 000000D5 F2410F10C4              movsd xmm0, xmm12
+   141 000000DA 48BF-                   mov rdi, output_perimeter_float    ;"The perimeter is %.3lf."
+   141 000000DC [B600000000000000] 
+   142 000000E4 E8(00000000)            call printf
+   143 000000E9 58                      pop rax
+   144                                  ;=================Calculate average=======================
+   145 000000EA F2450F10FC              movsd xmm15, xmm12
+   146 000000EF F2440F5E2425-           divsd xmm12, [four]
+   146 000000F5 [63010000]         
+   147                                  
+   148 000000F9 6A00                    push qword 0
+   149 000000FB B801000000              mov rax, 1
+   150 00000100 F2410F10C4              movsd xmm0, xmm12
+   151 00000105 48BF-                   mov rdi, output_average_float     ;"The length of the average side is %.3lf"
+   151 00000107 [D000000000000000] 
+   152 0000010F E8(00000000)            call printf
+   153 00000114 58                      pop rax
+   154                                  
+   155 00000115 6A00                    push qword 0
+   156 00000117 B800000000              mov rax, 0
+   157 0000011C 48BF-                   mov rdi, goodbye       ; "I hope you enjoyed your rectangle."
+   157 0000011E [FB00000000000000] 
+   158 00000126 E8(00000000)            call printf
+   159 0000012B 58                      pop rax
+   160                                  
+   161 0000012C 6A00                    push qword 0
+   162 0000012E B800000000              mov rax, 0
+   163 00000133 48BF-                   mov rdi, goodbye2       ; "The assembly program will send the perimeter to the main function."
+   163 00000135 [1F01000000000000] 
+   164 0000013D E8(00000000)            call printf
+   165 00000142 58                      pop rax
+   166                                  
+   167 00000143 58                      pop rax
+   168                                  
+   169 00000144 F2410F10C7              movsd xmm0, xmm15
+   170                                  ;===== Restore original values to integer registers ===================================================================
+   171 00000149 9D                      popf                                                        ;Restore rflags
+   172 0000014A 5B                      pop rbx                                                     ;Restore rbx
+   173 0000014B 415F                    pop r15                                                     ;Restore r15
+   174 0000014D 415E                    pop r14                                                     ;Restore r14
+   175 0000014F 415D                    pop r13                                                     ;Restore r13
+   176 00000151 415C                    pop r12                                                     ;Restore r12
+   177 00000153 415B                    pop r11                                                     ;Restore r11
+   178 00000155 415A                    pop r10                                                     ;Restore r10
+   179 00000157 4159                    pop r9                                                      ;Restore r9
+   180 00000159 4158                    pop r8                                                      ;Restore r8
+   181 0000015B 59                      pop rcx                                                     ;Restore rcx
+   182 0000015C 5A                      pop rdx                                                     ;Restore rdx
+   183 0000015D 5E                      pop rsi                                                     ;Restore rsi
+   184 0000015E 5F                      pop rdi                                                     ;Restore rdi
+   185 0000015F 5D                      pop rbp                                                     ;Restore rbp
+   186                                  
+   187 00000160 C3                      ret
