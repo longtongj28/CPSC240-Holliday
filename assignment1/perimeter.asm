@@ -141,9 +141,14 @@ movsd xmm0, xmm12
 mov rdi, output_perimeter_float    ;"The perimeter is %.3lf."
 call printf
 pop rax
+
+movsd xmm15, xmm12                  ;save the perimeter before modifying
 ;=================Calculate average=======================
-movsd xmm15, xmm12
+; two alternative ways to do the average
 divsd xmm12, [four]
+; mov r8, 4
+; cvtsi2sd xmm13, r8
+; divsd xmm12, xmm13
 
 push qword 0
 mov rax, 1
