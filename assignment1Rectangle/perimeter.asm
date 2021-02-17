@@ -1,29 +1,66 @@
+;****************************************************************************************************************************
+;Program name: "Rectangle".  This program takes in the user input of height and width in float and calculates perimeter and average side length. Copyright (C) 2021 Johnson Tong.                                                                           *
+;                                                                                                                           *
+;This file is part of the software program "Rectangle".                                                                   *
+;Rectangle is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+;version 3 as published by the Free Software Foundation.                                                                    *
+;Rectangle is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+;warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
+;A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
+;****************************************************************************************************************************
+
+
+
+
+;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+;
+;Author information
+;  Author name: Johnson Tong
+;  Author email: jt28@csu.fullerton.edu
+;
+;Program information
+;  Program name: Rectangle
+;  Programming languages: One modules in C and one module in X86
+;  Date program began: 2021 Feb 05
+;  Date of last update: 2021 Feb 12
+;
+;  Files in this program: rectangle.c, perimeter.asm
+;  Status: Finished.
+;
+;This file
+;   File name: perimeter.asm
+;   Language: X86 with Intel syntax.
+;   Max page width: 132 columns
+;   Assemble: nasm -f elf64 -l perimeter.lis -o perimeter.o perimeter.asm
+
+;===== Begin code area ================================================================================================
+
 extern printf
 extern scanf
-global floatio
+global perimeter
 
 segment .data
 welcome db "Welcome to a friendly assembly program by Johnson Tong",10,0
 welcome2 db "This program will compute the perimeter and the average side length of a rectangle.", 10, 0
 
 input1prompt db "Enter the height: ",0
-input2prompt db "Enter the width", 0
+input2prompt db "Enter the width: ", 0
 
 one_float_format db "%lf",0
 
-output_perimeter_float db "The perimeter is %.1lf.",10,0
-output_average_float db "The length of the average side is %.3lf", 10, 0
+output_perimeter_float db "The perimeter is %.15lf.",10,0
+output_average_float db "The length of the average side is %.15lf.", 10, 0
 
-goodbye db "I hope you enjoyed your rectangle",10,0
+goodbye db "I hope you enjoyed your rectangle.",10,0
 goodbye2 db "The assembly program will send the perimeter to the main function.", 10,0
-goodbye3 db "A 0 will be returned to the operating system.", 10,0
-goodbye4 db "Have a nice day.",10,0
+
+four dq 4.0
 
 segment .bss
 
 segment .text
 
-rectangle: 
+perimeter:
 ;Prolog ===== Insurance for any caller of this assembly module ========================================================
 ;Any future program calling this module that the data in the caller's GPRs will not be modified.
 push rbp
@@ -45,12 +82,111 @@ pushf                                                       ;Backup rflags
 
 ;Registers rax, rip, and rsp are usually not backed up.
 push qword 0
-
 ; Display the welcome messages
 mov rax, 0                  ;printf uses no data from xmm registers
 mov rdi, welcome            ;"Welcome to a friendly assembly program by Johnson Tong"
 call printf
 
+push qword 0
 mov rax, 0
 mov rdi, welcome2
 call printf
+pop rax
+
+;=========begin inputs for height and width===================
+push qword 0
+;Display a prompt message asking for inputs
+mov rax, 0
+mov rdi, input1prompt         ;"Enter the height: "
+call printf
+pop rax
+
+;Begin the scanf block
+push qword 0
+mov rax, 1
+mov rdi, one_float_format
+mov rsi, rsp
+call scanf
+movsd xmm10, [rsp]
+pop rax
+
+push qword 0
+;Display a prompt message asking for inputs
+mov rax, 0
+mov rdi, input2prompt       ; "Enter the width: "
+call printf
+pop rax
+
+;Begin the scanf block
+push qword 0
+mov rax, 1
+mov rdi, one_float_format
+mov rsi, rsp
+call scanf
+movsd xmm11, [rsp]
+pop rax
+
+
+
+;=================Calculate perimeter=====================
+movsd xmm12, xmm10             ; preserve the height
+movsd xmm13, xmm11             ; preserve the width
+addsd xmm12, xmm11
+addsd xmm13, xmm10
+addsd xmm12, xmm13
+
+push qword 0
+mov rax, 1
+movsd xmm0, xmm12
+mov rdi, output_perimeter_float    ;"The perimeter is %.3lf."
+call printf
+pop rax
+
+movsd xmm15, xmm12                  ;save the perimeter before modifying
+;=================Calculate average=======================
+; two alternative ways to do the average
+divsd xmm12, [four]
+; mov r8, 4
+; cvtsi2sd xmm13, r8
+; divsd xmm12, xmm13
+
+push qword 0
+mov rax, 1
+movsd xmm0, xmm12
+mov rdi, output_average_float     ;"The length of the average side is %.3lf"
+call printf
+pop rax
+
+push qword 0
+mov rax, 0
+mov rdi, goodbye       ; "I hope you enjoyed your rectangle."
+call printf
+pop rax
+
+push qword 0
+mov rax, 0
+mov rdi, goodbye2       ; "The assembly program will send the perimeter to the main function."
+call printf
+pop rax
+
+pop rax
+
+movsd xmm0, xmm15
+;===== Restore original values to integer registers ===================================================================
+popf                                                        ;Restore rflags
+pop rbx                                                     ;Restore rbx
+pop r15                                                     ;Restore r15
+pop r14                                                     ;Restore r14
+pop r13                                                     ;Restore r13
+pop r12                                                     ;Restore r12
+pop r11                                                     ;Restore r11
+pop r10                                                     ;Restore r10
+pop r9                                                      ;Restore r9
+pop r8                                                      ;Restore r8
+pop rcx                                                     ;Restore rcx
+pop rdx                                                     ;Restore rdx
+pop rsi                                                     ;Restore rsi
+pop rdi                                                     ;Restore rdi
+pop rbp                                                     ;Restore rbp
+
+ret
