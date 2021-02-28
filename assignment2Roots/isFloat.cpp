@@ -19,7 +19,7 @@
 //
 //Program information
 //  Program name: Quadratic
-//  Programming languages: One modules in C, one module in X86, two modules in C++
+//  Programming languages: One module in C, one module in X86, two modules in C++
 //  Date program began: 2021 Feb 17
 //  Date of last update: 2021 Feb 28
 //  Date of reorganization of comments: 2021 Feb 28
