@@ -27,8 +27,8 @@
 //  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition.
 //
 //Purpose
-//  This file the function isFloat that will check whether or not a string input is a float, This will help validate input in the
-//  the assembly file quadratic.asm.
+//  This file contains the function isFloat that will check whether or not a string input is a float. This will help validate input
+//  in the assembly file quadratic.asm.
 //
 //This file
 //   File name: isFloat.cpp
