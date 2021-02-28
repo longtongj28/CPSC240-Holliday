@@ -103,11 +103,11 @@ push qword -1
 sub rsp, 3072   ; make space for 3 strings (1024 bytes each)
 mov rax, 0
 mov rdi, three_string_format ;"%s%s%s"
-mov rsi, rsp ;point to first qword
+mov rsi, rsp    ; first string on the stack
 mov rdx, rsp
-add rdx, 1024   ; point to second qword
+add rdx, 1024   ; allow space for second long string
 mov rcx, rsp
-add rcx, 2048  ; point to third qword
+add rcx, 2048  ; allow space for long strings
 call scanf
 ;====== check invalid input =======
 ; must pass this test or will end program

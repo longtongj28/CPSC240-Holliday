@@ -22,7 +22,7 @@
     22                                  ;
     23                                  ;Program information
     24                                  ;  Program name: Quadratic
-    25                                  ;  Programming languages: One modules in C, one module in X86, two modules in C++
+    25                                  ;  Programming languages: One module in C, one module in X86, two modules in C++
     26                                  ;  Date program began: 2021 Feb 17
     27                                  ;  Date of last update: 2021 Feb 28
     28                                  ;  Date of reorganization of comments: 2021 Feb 28
@@ -58,7 +58,7 @@
     53 0000002D 617469632065717561-
     53 00000036 74696F6E2E0A00     
     54                                  
-    55 0000003D 506C6561736520656E-     inputprompt db "Please enter the three floating point coefficients of a quadratic equation in the order a, b, c. Press enter after each number: ", 0
+    55 0000003D 506C6561736520656E-     inputprompt db "Please enter the three floating point coefficients of a quadratic equation in the order a, b, c.", 10, 0
     55 00000046 746572207468652074-
     55 0000004F 6872656520666C6F61-
     55 00000058 74696E6720706F696E-
@@ -68,284 +68,284 @@
     55 0000007C 696320657175617469-
     55 00000085 6F6E20696E20746865-
     55 0000008E 206F7264657220612C-
-    55 00000097 20622C20632E205072-
-    55 000000A0 65737320656E746572-
-    55 000000A9 206166746572206561-
-    55 000000B2 6368206E756D626572-
-    55 000000BB 3A2000             
-    56 000000BE 25732573257300          three_string_format db "%s%s%s",0
-    57 000000C5 5468616E6B20796F75-     show_quadratic db "Thank you. The equation is %.9lfx^2 + %.9lfx + %.9lf = 0.0.", 10, 0
-    57 000000CE 2E2054686520657175-
-    57 000000D7 6174696F6E20697320-
-    57 000000E0 252E396C66785E3220-
-    57 000000E9 2B20252E396C667820-
-    57 000000F2 2B20252E396C66203D-
-    57 000000FB 20302E302E0A00     
-    58 00000102 4F6E65206F66207468-     one_return db "One of these roots will be returned to the caller function.", 10, 0
-    58 0000010B 65736520726F6F7473-
-    58 00000114 2077696C6C20626520-
-    58 0000011D 72657475726E656420-
-    58 00000126 746F20746865206361-
-    58 0000012F 6C6C65722066756E63-
-    58 00000138 74696F6E2E0A00     
-    59 0000013F 496E76616C69642069-     invalid db "Invalid input data detected. You may run this program again.", 10, 0
-    59 00000148 6E7075742064617461-
-    59 00000151 206465746563746564-
-    59 0000015A 2E20596F75206D6179-
-    59 00000163 2072756E2074686973-
-    59 0000016C 2070726F6772616D20-
-    59 00000175 616761696E2E0A00   
-    60 0000017D 54686973206973206E-     not_quadratic db "This is not a quadratic equation. You may run this program again.", 10, 0
-    60 00000186 6F7420612071756164-
-    60 0000018F 726174696320657175-
-    60 00000198 6174696F6E2E20596F-
-    60 000001A1 75206D61792072756E-
-    60 000001AA 20746869732070726F-
-    60 000001B3 6772616D2061676169-
-    60 000001BC 6E2E0A00           
-    61                                  segment .bss  ;Reserved for uninitialized data
-    62                                  
-    63                                  segment .text ;Reserved for executing instructions.
-    64                                  
-    65                                  findRoots:
-    66                                  
-    67                                  ;Prolog ===== Insurance for any caller of this assembly module ========================================================
-    68                                  ;Any future program calling this module that the data in the caller's GPRs will not be modified.
-    69 00000000 55                      push rbp
-    70 00000001 4889E5                  mov  rbp,rsp
-    71 00000004 57                      push rdi                                                    ;Backup rdi
-    72 00000005 56                      push rsi                                                    ;Backup rsi
-    73 00000006 52                      push rdx                                                    ;Backup rdx
-    74 00000007 51                      push rcx                                                    ;Backup rcx
-    75 00000008 4150                    push r8                                                     ;Backup r8
-    76 0000000A 4151                    push r9                                                     ;Backup r9
-    77 0000000C 4152                    push r10                                                    ;Backup r10
-    78 0000000E 4153                    push r11                                                    ;Backup r11
-    79 00000010 4154                    push r12                                                    ;Backup r12
-    80 00000012 4155                    push r13                                                    ;Backup r13
-    81 00000014 4156                    push r14                                                    ;Backup r14
-    82 00000016 4157                    push r15                                                    ;Backup r15
-    83 00000018 53                      push rbx                                                    ;Backup rbx
-    84 00000019 9C                      pushf                                                       ;Backup rflags
-    85                                  
-    86                                  ;Registers rax, rip, and rsp are usually not backed up.
-    87 0000001A 6A00                    push qword 0
-    88                                  
-    89                                  ;==========Welcome and prompt============
-    90 0000001C 6A00                    push qword 0
-    91 0000001E B800000000              mov rax, 0
-    92 00000023 48BF-                   mov rdi, welcome ; "This program will find the roots of any quadratic equation."
-    92 00000025 [0000000000000000] 
-    93 0000002D E8(00000000)            call printf
-    94 00000032 58                      pop rax
-    95                                  
-    96 00000033 6A00                    push qword 0
-    97 00000035 B800000000              mov rax, 0
-    98 0000003A 48BF-                   mov rdi, inputprompt ; "Please enter the three floating point...."
-    98 0000003C [3D00000000000000] 
-    99 00000044 E8(00000000)            call printf
-   100 00000049 58                      pop rax
-   101                                  ;===========Store the three floats a,b,c===============
-   102 0000004A 6AFF                    push qword -1
-   103 0000004C 4881EC000C0000          sub rsp, 3072   ; make space for 3 strings (1024 bytes each)
-   104 00000053 B800000000              mov rax, 0
-   105 00000058 48BF-                   mov rdi, three_string_format ;"%s%s%s"
-   105 0000005A [BE00000000000000] 
-   106 00000062 4889E6                  mov rsi, rsp ;point to first qword
-   107 00000065 4889E2                  mov rdx, rsp
-   108 00000068 4881C200040000          add rdx, 1024   ; point to second qword
-   109 0000006F 4889E1                  mov rcx, rsp
-   110 00000072 4881C100080000          add rcx, 2048  ; point to third qword
-   111 00000079 E8(00000000)            call scanf
-   112                                  ;====== check invalid input =======
-   113                                  ; must pass this test or will end program
-   114 0000007E B800000000              mov rax, 0
-   115 00000083 4889E7                  mov rdi, rsp
-   116 00000086 E8(00000000)            call isFloat
-   117 0000008B 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
-   118 0000008F 0F847A010000            je invalidRoot
-   119                                  
-   120 00000095 B800000000              mov rax, 0
-   121 0000009A 4889E7                  mov rdi, rsp
-   122 0000009D 4881C700040000          add rdi, 1024
-   123 000000A4 E8(00000000)            call isFloat
-   124 000000A9 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
-   125 000000AD 0F845C010000            je invalidRoot
-   126                                  
-   127 000000B3 B800000000              mov rax, 0
-   128 000000B8 4889E7                  mov rdi, rsp
-   129 000000BB 4881C700080000          add rdi, 2048
-   130 000000C2 E8(00000000)            call isFloat
-   131 000000C7 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
-   132 000000CB 0F843E010000            je invalidRoot
-   133                                  ;=========finish check=======================
-   134                                  
-   135                                  ;=========convert valid values to float===========
-   136                                  ;             and store them
-   137 000000D1 4889E7                  mov rdi, rsp
-   138 000000D4 E8(00000000)            call atof
-   139 000000D9 F20F10E8                movsd xmm5,xmm0
-   140 000000DD B900000000              mov rcx, 0          ; begin check if a is 0.0. if it is,
-   141 000000E2 F2480F2AC1              cvtsi2sd xmm0, rcx   ; it's not a possible quadratic equation
-   142 000000E7 660F2EE8                ucomisd xmm5, xmm0
-   143 000000EB 0F8443010000            je notQuadratic
-   144                                  
-   145 000000F1 4889E7                  mov rdi, rsp
-   146 000000F4 4881C700040000          add rdi, 1024
-   147 000000FB E8(00000000)            call atof
-   148 00000100 F20F10F0                movsd xmm6, xmm0
-   149                                  
-   150 00000104 4889E7                  mov rdi, rsp
-   151 00000107 4881C700080000          add rdi, 2048
-   152 0000010E E8(00000000)            call atof
-   153 00000113 F20F10F8                movsd xmm7, xmm0
-   154                                  ;===========finished storing values========
-   155                                  
-   156 00000117 58                      pop rax   ;counter push from the beginning of scanf after passing validation test
-   157                                  
-   158                                  ; ======== display the equation=====
-   159 00000118 6A00                    push qword 0
-   160 0000011A B803000000              mov rax, 3
-   161 0000011F 48BF-                   mov rdi, show_quadratic   ;"Thank you! The quadratic equation is ....."
-   161 00000121 [C500000000000000] 
-   162 00000129 F20F10C5                movsd xmm0, xmm5          ; storing the valid coefficient floats
-   163 0000012D F20F10CE                movsd xmm1, xmm6
-   164 00000131 F20F10D7                movsd xmm2, xmm7
-   165 00000135 E8(00000000)            call printf
-   166 0000013A 58                      pop rax
-   167                                  
-   168                                  ; ==========calculate the roots============
-   169                                  ;-b +/- sqrt(b^2-4ac) / 2a
-   170                                  ;first root:
-   171                                  ; -b
-   172 0000013B 48C7C3FFFFFFFF          mov rbx, -1
-   173 00000142 F24C0F2AC3              cvtsi2sd xmm8, rbx
-   174 00000147 F2440F59C6              mulsd xmm8, xmm6 ; -1*b
-   175                                  ; sqrt(b^2-4ac)
-   176 0000014C F2440F10CE              movsd xmm9, xmm6 ; copy b
-   177 00000151 F2450F59C9              mulsd xmm9, xmm9 ; b*b
-   178 00000156 B904000000              mov rcx, 4
-   179 0000015B F24C0F2AD1              cvtsi2sd xmm10, rcx
-   180 00000160 F2440F59D5              mulsd xmm10, xmm5 ; 4*a
-   181 00000165 F2440F59D7              mulsd xmm10, xmm7 ; 4*a*c
-   182 0000016A F2450F5CCA              subsd xmm9, xmm10 ; b*b - 4ac, discriminant
-   183 0000016F F2450F51D9              sqrtsd xmm11, xmm9 ; sqrt(discriminant)
-   184                                  ; 2 * a
-   185 00000174 BA02000000              mov rdx, 2
-   186 00000179 F24C0F2AFA              cvtsi2sd xmm15, rdx
-   187 0000017E F2440F59FD              mulsd xmm15, xmm5
-   188                                  
-   189 00000183 F2450F10E0              movsd xmm12, xmm8   ; copy -b
-   190 00000188 F2450F58E3              addsd xmm12, xmm11  ; -b + sqrt(...)
-   191                                  ; doing the division of quad. form
-   192                                  ; "all over 2*a"
-   193 0000018D F2450F5EE7              divsd xmm12, xmm15
-   194                                  
-   195                                  ; second root:
-   196 00000192 F2450F5CC3              subsd xmm8, xmm11   ; -b - sqrt(...)
-   197                                  ; doing the division of quad. form
-   198                                  ; "all over 2*a"
-   199 00000197 F2450F5EC7              divsd xmm8, xmm15
-   200                                  
-   201                                  ;now the roots will be stored in xmm12 and xmm8
-   202                                  
-   203                                  ;=====display the roots if they exist ======
-   204 0000019C B800000000              mov rax, 0
-   205 000001A1 F24C0F2AF0              cvtsi2sd xmm14, rax
-   206 000001A6 66450F2ECE              ucomisd xmm9, xmm14   ; comparing the discriminant with 0.0
-   207 000001AB 7204                    jb noRoot             ; less than 0.0 hop to noRoot
-   208 000001AD 7415                    je oneRoot            ; equal to 0.0 hop to oneRoot
-   209 000001AF 772D                    ja twoRoot            ; greater than 0.0 hop to twoRoot
-   210                                  
-   211                                  noRoot:
-   212 000001B1 6A00                      push qword 0
-   213 000001B3 E8(00000000)              call show_no_root ; "No root was found."
-   214 000001B8 58                        pop rax
-   215                                  
-   216 000001B9 58                        pop rax ; counter the push qword at the beginning of code
-   217 000001BA F2410F10C6                movsd xmm0, xmm14   ; return 0.0 to the caller of function
-   218 000001BF E98E000000                jmp endIf
-   219                                  
-   220                                  oneRoot:
-   221 000001C4 6A00                      push qword 0
-   222 000001C6 B801000000                mov rax, 1
-   223 000001CB F2410F10C4                movsd xmm0, xmm12
-   224 000001D0 E8(00000000)              call show_one_root  ; "One root was found: ...."
-   225 000001D5 58                        pop rax
-   226                                  
-   227 000001D6 58                        pop rax ; counter the push qword at the beginning of code
-   228 000001D7 F2410F10C4                movsd xmm0, xmm12   ;return the root to the caller
-   229 000001DC EB74                      jmp endIf
-   230                                  
-   231                                  twoRoot:
-   232 000001DE 6A00                      push qword 0
-   233 000001E0 B802000000                mov rax, 2
-   234 000001E5 F2410F10C4                movsd xmm0, xmm12
-   235 000001EA F2410F10C8                movsd xmm1, xmm8
-   236 000001EF E8(00000000)              call show_two_root   ;"The roots are .... and ..."
-   237 000001F4 58                        pop rax
-   238                                  
-   239 000001F5 6A00                      push qword 0
-   240 000001F7 48BF-                     mov rdi, one_return ; "one of these roots will be returned..."
-   240 000001F9 [0201000000000000] 
-   241 00000201 E8(00000000)              call printf
-   242 00000206 58                        pop rax
-   243                                  
-   244 00000207 58                        pop rax ; counter the push qword at the beginning of code
-   245 00000208 F2410F10C4                movsd xmm0, xmm12 ; return one of the roots to the caller
-   246 0000020D EB43                      jmp endIf
-   247                                  
-   248                                  invalidRoot:
-   249 0000020F 6A00                      push qword 0
-   250 00000211 B800000000                mov rax, 0
-   251 00000216 48BF-                     mov rdi, invalid ; "rerun the program"
-   251 00000218 [3F01000000000000] 
-   252 00000220 E8(00000000)              call printf
-   253 00000225 58                        pop rax
-   254                                    ; push from scanf + 1 push at beginning of file
-   255 00000226 58                        pop rax
-   256                                  
-   257 00000227 58                        pop rax
-   258                                  
-   259 00000228 BA00000000                mov rdx, 0
-   260 0000022D F2480F2AC2                cvtsi2sd xmm0, rdx   ;return 0.0 to the caller
-   261 00000232 EB1E                      jmp endIf
-   262                                  
-   263                                  notQuadratic:
-   264 00000234 6A00                      push qword 0
-   265 00000236 48BF-                     mov rdi, not_quadratic
-   265 00000238 [7D01000000000000] 
-   266 00000240 E8(00000000)              call printf
-   267 00000245 58                        pop rax
-   268                                  
-   269                                    ; push from scanf + 1 push at beginning of file
-   270 00000246 58                        pop rax
-   271                                  
-   272 00000247 58                        pop rax
-   273                                  
-   274 00000248 BA00000000                mov rdx, 0
-   275 0000024D F2480F2AC2                cvtsi2sd xmm0, rdx   ;return 0.0 to the caller
-   276                                  
-   277                                  endIf:        ; end of if statements/end of program
-   278 00000252 4881C4000C0000          add rsp, 3072 ; counter the space made at the beginning of the program for 3 strings
-   279                                  
-   280                                  ;===== Restore original values to integer registers ===================================================================
-   281 00000259 9D                      popf                                                        ;Restore rflags
-   282 0000025A 5B                      pop rbx                                                     ;Restore rbx
-   283 0000025B 415F                    pop r15                                                     ;Restore r15
-   284 0000025D 415E                    pop r14                                                     ;Restore r14
-   285 0000025F 415D                    pop r13                                                     ;Restore r13
-   286 00000261 415C                    pop r12                                                     ;Restore r12
-   287 00000263 415B                    pop r11                                                     ;Restore r11
-   288 00000265 415A                    pop r10                                                     ;Restore r10
-   289 00000267 4159                    pop r9                                                      ;Restore r9
-   290 00000269 4158                    pop r8                                                      ;Restore r8
-   291 0000026B 59                      pop rcx                                                     ;Restore rcx
-   292 0000026C 5A                      pop rdx                                                     ;Restore rdx
-   293 0000026D 5E                      pop rsi                                                     ;Restore rsi
-   294 0000026E 5F                      pop rdi                                                     ;Restore rdi
-   295 0000026F 5D                      pop rbp                                                     ;Restore rbp
-   296                                  
-   297 00000270 C3                      ret
-   298                                  
-   299                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    55 00000097 20622C20632E0A00   
+    56 0000009F 507265737320656E74-                 db "Press enter after each number: ", 10, 0
+    56 000000A8 657220616674657220-
+    56 000000B1 65616368206E756D62-
+    56 000000BA 65723A200A00       
+    57 000000C0 25732573257300          three_string_format db "%s%s%s",0
+    58 000000C7 5468616E6B20796F75-     show_quadratic db "Thank you. The equation is %.9lfx^2 + %.9lfx + %.9lf = 0.0.", 10, 0
+    58 000000D0 2E2054686520657175-
+    58 000000D9 6174696F6E20697320-
+    58 000000E2 252E396C66785E3220-
+    58 000000EB 2B20252E396C667820-
+    58 000000F4 2B20252E396C66203D-
+    58 000000FD 20302E302E0A00     
+    59 00000104 4F6E65206F66207468-     one_return db "One of these roots will be returned to the caller function.", 10, 0
+    59 0000010D 65736520726F6F7473-
+    59 00000116 2077696C6C20626520-
+    59 0000011F 72657475726E656420-
+    59 00000128 746F20746865206361-
+    59 00000131 6C6C65722066756E63-
+    59 0000013A 74696F6E2E0A00     
+    60 00000141 496E76616C69642069-     invalid db "Invalid input data detected. You may run this program again.", 10, 0
+    60 0000014A 6E7075742064617461-
+    60 00000153 206465746563746564-
+    60 0000015C 2E20596F75206D6179-
+    60 00000165 2072756E2074686973-
+    60 0000016E 2070726F6772616D20-
+    60 00000177 616761696E2E0A00   
+    61 0000017F 54686973206973206E-     not_quadratic db "This is not a quadratic equation. You may run this program again.", 10, 0
+    61 00000188 6F7420612071756164-
+    61 00000191 726174696320657175-
+    61 0000019A 6174696F6E2E20596F-
+    61 000001A3 75206D61792072756E-
+    61 000001AC 20746869732070726F-
+    61 000001B5 6772616D2061676169-
+    61 000001BE 6E2E0A00           
+    62                                  segment .bss  ;Reserved for uninitialized data
+    63                                  
+    64                                  segment .text ;Reserved for executing instructions.
+    65                                  
+    66                                  findRoots:
+    67                                  
+    68                                  ;Prolog ===== Insurance for any caller of this assembly module ========================================================
+    69                                  ;Any future program calling this module that the data in the caller's GPRs will not be modified.
+    70 00000000 55                      push rbp
+    71 00000001 4889E5                  mov  rbp,rsp
+    72 00000004 57                      push rdi                                                    ;Backup rdi
+    73 00000005 56                      push rsi                                                    ;Backup rsi
+    74 00000006 52                      push rdx                                                    ;Backup rdx
+    75 00000007 51                      push rcx                                                    ;Backup rcx
+    76 00000008 4150                    push r8                                                     ;Backup r8
+    77 0000000A 4151                    push r9                                                     ;Backup r9
+    78 0000000C 4152                    push r10                                                    ;Backup r10
+    79 0000000E 4153                    push r11                                                    ;Backup r11
+    80 00000010 4154                    push r12                                                    ;Backup r12
+    81 00000012 4155                    push r13                                                    ;Backup r13
+    82 00000014 4156                    push r14                                                    ;Backup r14
+    83 00000016 4157                    push r15                                                    ;Backup r15
+    84 00000018 53                      push rbx                                                    ;Backup rbx
+    85 00000019 9C                      pushf                                                       ;Backup rflags
+    86                                  
+    87                                  ;Registers rax, rip, and rsp are usually not backed up.
+    88 0000001A 6A00                    push qword 0
+    89                                  
+    90                                  ;==========Welcome and prompt============
+    91 0000001C 6A00                    push qword 0
+    92 0000001E B800000000              mov rax, 0
+    93 00000023 48BF-                   mov rdi, welcome ; "This program will find the roots of any quadratic equation."
+    93 00000025 [0000000000000000] 
+    94 0000002D E8(00000000)            call printf
+    95 00000032 58                      pop rax
+    96                                  
+    97 00000033 6A00                    push qword 0
+    98 00000035 B800000000              mov rax, 0
+    99 0000003A 48BF-                   mov rdi, inputprompt ; "Please enter the three floating point...."
+    99 0000003C [3D00000000000000] 
+   100 00000044 E8(00000000)            call printf
+   101 00000049 58                      pop rax
+   102                                  ;===========Store the three floats a,b,c===============
+   103 0000004A 6AFF                    push qword -1
+   104 0000004C 4881EC000C0000          sub rsp, 3072   ; make space for 3 strings (1024 bytes each)
+   105 00000053 B800000000              mov rax, 0
+   106 00000058 48BF-                   mov rdi, three_string_format ;"%s%s%s"
+   106 0000005A [C000000000000000] 
+   107 00000062 4889E6                  mov rsi, rsp ;point to first qword
+   108 00000065 4889E2                  mov rdx, rsp
+   109 00000068 4881C200040000          add rdx, 1024   ; point to second qword
+   110 0000006F 4889E1                  mov rcx, rsp
+   111 00000072 4881C100080000          add rcx, 2048  ; point to third qword
+   112 00000079 E8(00000000)            call scanf
+   113                                  ;====== check invalid input =======
+   114                                  ; must pass this test or will end program
+   115 0000007E B800000000              mov rax, 0
+   116 00000083 4889E7                  mov rdi, rsp
+   117 00000086 E8(00000000)            call isFloat
+   118 0000008B 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
+   119 0000008F 0F847A010000            je invalidRoot
+   120                                  
+   121 00000095 B800000000              mov rax, 0
+   122 0000009A 4889E7                  mov rdi, rsp
+   123 0000009D 4881C700040000          add rdi, 1024
+   124 000000A4 E8(00000000)            call isFloat
+   125 000000A9 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
+   126 000000AD 0F845C010000            je invalidRoot
+   127                                  
+   128 000000B3 B800000000              mov rax, 0
+   129 000000B8 4889E7                  mov rdi, rsp
+   130 000000BB 4881C700080000          add rdi, 2048
+   131 000000C2 E8(00000000)            call isFloat
+   132 000000C7 4883F800                cmp rax, 0        ;if not a float, jump to invalidRoot
+   133 000000CB 0F843E010000            je invalidRoot
+   134                                  ;=========finish check=======================
+   135                                  
+   136                                  ;=========convert valid values to float===========
+   137                                  ;             and store them
+   138 000000D1 4889E7                  mov rdi, rsp
+   139 000000D4 E8(00000000)            call atof
+   140 000000D9 F20F10E8                movsd xmm5,xmm0
+   141 000000DD B900000000              mov rcx, 0          ; begin check if a is 0.0. if it is,
+   142 000000E2 F2480F2AC1              cvtsi2sd xmm0, rcx   ; it's not a possible quadratic equation
+   143 000000E7 660F2EE8                ucomisd xmm5, xmm0
+   144 000000EB 0F8443010000            je notQuadratic
+   145                                  
+   146 000000F1 4889E7                  mov rdi, rsp
+   147 000000F4 4881C700040000          add rdi, 1024
+   148 000000FB E8(00000000)            call atof
+   149 00000100 F20F10F0                movsd xmm6, xmm0
+   150                                  
+   151 00000104 4889E7                  mov rdi, rsp
+   152 00000107 4881C700080000          add rdi, 2048
+   153 0000010E E8(00000000)            call atof
+   154 00000113 F20F10F8                movsd xmm7, xmm0
+   155                                  ;===========finished storing values========
+   156                                  
+   157 00000117 58                      pop rax   ;counter push from the beginning of scanf after passing validation test
+   158                                  
+   159                                  ; ======== display the equation=====
+   160 00000118 6A00                    push qword 0
+   161 0000011A B803000000              mov rax, 3
+   162 0000011F 48BF-                   mov rdi, show_quadratic   ;"Thank you! The quadratic equation is ....."
+   162 00000121 [C700000000000000] 
+   163 00000129 F20F10C5                movsd xmm0, xmm5          ; storing the valid coefficient floats
+   164 0000012D F20F10CE                movsd xmm1, xmm6
+   165 00000131 F20F10D7                movsd xmm2, xmm7
+   166 00000135 E8(00000000)            call printf
+   167 0000013A 58                      pop rax
+   168                                  
+   169                                  ; ==========calculate the roots============
+   170                                  ;-b +/- sqrt(b^2-4ac) / 2a
+   171                                  ;first root:
+   172                                  ; -b
+   173 0000013B 48C7C3FFFFFFFF          mov rbx, -1
+   174 00000142 F24C0F2AC3              cvtsi2sd xmm8, rbx
+   175 00000147 F2440F59C6              mulsd xmm8, xmm6 ; -1*b
+   176                                  ; sqrt(b^2-4ac)
+   177 0000014C F2440F10CE              movsd xmm9, xmm6 ; copy b
+   178 00000151 F2450F59C9              mulsd xmm9, xmm9 ; b*b
+   179 00000156 B904000000              mov rcx, 4
+   180 0000015B F24C0F2AD1              cvtsi2sd xmm10, rcx
+   181 00000160 F2440F59D5              mulsd xmm10, xmm5 ; 4*a
+   182 00000165 F2440F59D7              mulsd xmm10, xmm7 ; 4*a*c
+   183 0000016A F2450F5CCA              subsd xmm9, xmm10 ; b*b - 4ac, discriminant
+   184 0000016F F2450F51D9              sqrtsd xmm11, xmm9 ; sqrt(discriminant)
+   185                                  ; 2 * a
+   186 00000174 BA02000000              mov rdx, 2
+   187 00000179 F24C0F2AFA              cvtsi2sd xmm15, rdx
+   188 0000017E F2440F59FD              mulsd xmm15, xmm5
+   189                                  
+   190 00000183 F2450F10E0              movsd xmm12, xmm8   ; copy -b
+   191 00000188 F2450F58E3              addsd xmm12, xmm11  ; -b + sqrt(...)
+   192                                  ; doing the division of quad. form
+   193                                  ; "all over 2*a"
+   194 0000018D F2450F5EE7              divsd xmm12, xmm15
+   195                                  
+   196                                  ; second root:
+   197 00000192 F2450F5CC3              subsd xmm8, xmm11   ; -b - sqrt(...)
+   198                                  ; doing the division of quad. form
+   199                                  ; "all over 2*a"
+   200 00000197 F2450F5EC7              divsd xmm8, xmm15
+   201                                  
+   202                                  ;now the roots will be stored in xmm12 and xmm8
+   203                                  
+   204                                  ;=====display the roots if they exist ======
+   205 0000019C B800000000              mov rax, 0
+   206 000001A1 F24C0F2AF0              cvtsi2sd xmm14, rax
+   207 000001A6 66450F2ECE              ucomisd xmm9, xmm14   ; comparing the discriminant with 0.0
+   208 000001AB 7204                    jb noRoot             ; less than 0.0 hop to noRoot
+   209 000001AD 7415                    je oneRoot            ; equal to 0.0 hop to oneRoot
+   210 000001AF 772D                    ja twoRoot            ; greater than 0.0 hop to twoRoot
+   211                                  
+   212                                  noRoot:
+   213 000001B1 6A00                      push qword 0
+   214 000001B3 E8(00000000)              call show_no_root ; "No root was found."
+   215 000001B8 58                        pop rax
+   216                                  
+   217 000001B9 58                        pop rax ; counter the push qword at the beginning of code
+   218 000001BA F2410F10C6                movsd xmm0, xmm14   ; return 0.0 to the caller of function
+   219 000001BF E98E000000                jmp endIf
+   220                                  
+   221                                  oneRoot:
+   222 000001C4 6A00                      push qword 0
+   223 000001C6 B801000000                mov rax, 1
+   224 000001CB F2410F10C4                movsd xmm0, xmm12
+   225 000001D0 E8(00000000)              call show_one_root  ; "One root was found: ...."
+   226 000001D5 58                        pop rax
+   227                                  
+   228 000001D6 58                        pop rax ; counter the push qword at the beginning of code
+   229 000001D7 F2410F10C4                movsd xmm0, xmm12   ;return the root to the caller
+   230 000001DC EB74                      jmp endIf
+   231                                  
+   232                                  twoRoot:
+   233 000001DE 6A00                      push qword 0
+   234 000001E0 B802000000                mov rax, 2
+   235 000001E5 F2410F10C4                movsd xmm0, xmm12
+   236 000001EA F2410F10C8                movsd xmm1, xmm8
+   237 000001EF E8(00000000)              call show_two_root   ;"The roots are .... and ..."
+   238 000001F4 58                        pop rax
+   239                                  
+   240 000001F5 6A00                      push qword 0
+   241 000001F7 48BF-                     mov rdi, one_return ; "one of these roots will be returned..."
+   241 000001F9 [0401000000000000] 
+   242 00000201 E8(00000000)              call printf
+   243 00000206 58                        pop rax
+   244                                  
+   245 00000207 58                        pop rax ; counter the push qword at the beginning of code
+   246 00000208 F2410F10C4                movsd xmm0, xmm12 ; return one of the roots to the caller
+   247 0000020D EB43                      jmp endIf
+   248                                  
+   249                                  invalidRoot:
+   250 0000020F 6A00                      push qword 0
+   251 00000211 B800000000                mov rax, 0
+   252 00000216 48BF-                     mov rdi, invalid ; "rerun the program"
+   252 00000218 [4101000000000000] 
+   253 00000220 E8(00000000)              call printf
+   254 00000225 58                        pop rax
+   255                                    ; push from scanf + 1 push at beginning of file
+   256 00000226 58                        pop rax
+   257                                  
+   258 00000227 58                        pop rax
+   259                                  
+   260 00000228 BA00000000                mov rdx, 0
+   261 0000022D F2480F2AC2                cvtsi2sd xmm0, rdx   ;return 0.0 to the caller
+   262 00000232 EB1E                      jmp endIf
+   263                                  
+   264                                  notQuadratic:
+   265 00000234 6A00                      push qword 0
+   266 00000236 48BF-                     mov rdi, not_quadratic
+   266 00000238 [7F01000000000000] 
+   267 00000240 E8(00000000)              call printf
+   268 00000245 58                        pop rax
+   269                                  
+   270                                    ; push from scanf + 1 push at beginning of file
+   271 00000246 58                        pop rax
+   272                                  
+   273 00000247 58                        pop rax
+   274                                  
+   275 00000248 BA00000000                mov rdx, 0
+   276 0000024D F2480F2AC2                cvtsi2sd xmm0, rdx   ;return 0.0 to the caller
+   277                                  
+   278                                  endIf:        ; end of if statements/end of program
+   279 00000252 4881C4000C0000          add rsp, 3072 ; counter the space made at the beginning of the program for 3 strings
+   280                                  
+   281                                  ;===== Restore original values to integer registers ===================================================================
+   282 00000259 9D                      popf                                                        ;Restore rflags
+   283 0000025A 5B                      pop rbx                                                     ;Restore rbx
+   284 0000025B 415F                    pop r15                                                     ;Restore r15
+   285 0000025D 415E                    pop r14                                                     ;Restore r14
+   286 0000025F 415D                    pop r13                                                     ;Restore r13
+   287 00000261 415C                    pop r12                                                     ;Restore r12
+   288 00000263 415B                    pop r11                                                     ;Restore r11
+   289 00000265 415A                    pop r10                                                     ;Restore r10
+   290 00000267 4159                    pop r9                                                      ;Restore r9
+   291 00000269 4158                    pop r8                                                      ;Restore r8
+   292 0000026B 59                      pop rcx                                                     ;Restore rcx
+   293 0000026C 5A                      pop rdx                                                     ;Restore rdx
+   294 0000026D 5E                      pop rsi                                                     ;Restore rsi
+   295 0000026E 5F                      pop rdi                                                     ;Restore rdi
+   296 0000026F 5D                      pop rbp                                                     ;Restore rbp
+   297                                  
+   298 00000270 C3                      ret
+   299                                  
+   300                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
