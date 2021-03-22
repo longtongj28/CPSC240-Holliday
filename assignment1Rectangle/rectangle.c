@@ -46,7 +46,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 
-        extern double perimeter();
+extern double perimeter();
 
 int main(int argc, char* argv[])
 {
