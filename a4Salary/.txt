@@ -1,0 +1,10 @@
+Welcome to Software Analysis by Paramount Programmers, Inc.
+Please enter your first and last names and press enter: 
+Please enter your expected annual salary when employed at Paramount: 
+Your interview with Ms. Linda Fensterm Personnel Manager, will begin shortly.
+Hello Johnson Tong. I am Ms Fenster. The interview will begin now.
+Wow! $12.00, That's a lot of cash. Who do you think you are, Chris Sawyer? (enter y or n) 
+Thank you. Please follow the exit signs to the front desk.
+Hello Johnson Tong I am the receptionist.
+This envelope has your job offer starting at 1 million annual. Please start anytime you like. In the middle time our CTO wishes to have dinner with you.
+Have a very nice evening Mr. Sawyer.
