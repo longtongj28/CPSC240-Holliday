@@ -1,10 +1,12 @@
 ;****************************************************************************************************************************
-;Program name: "Rectangle".  This program takes in the user input of height and width in float and calculates perimeter and average side length. Copyright (C) 2021 Johnson Tong.                                                                           *
+;Program name: "Paramount Interviews".  A funny program made in assembly/C++ that shows a unrealistic job interview.
+;               Three text files are included to show the possible unique outputs.
+; Copyright (C) 2021 Johnson Tong.                                                                           *
 ;                                                                                                                           *
-;This file is part of the software program "Rectangle".                                                                   *
-;Rectangle is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+;This file is part of the software program "Interview".                                                                   *
+;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
 ;version 3 as published by the Free Software Foundation.                                                                    *
-;Rectangle is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
 ;warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
 ;A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
 ;****************************************************************************************************************************
@@ -19,21 +21,24 @@
 ;  Author email: jt28@csu.fullerton.edu
 ;
 ;Program information
-;  Program name: Rectangle
-;  Programming languages: One modules in C and one module in X86
-;  Date program began: 2021 Feb 05
-;  Date of last update: 2021 Feb 12
-;
-;  Files in this program: rectangle.c, perimeter.asm
-;  Status: Finished.
+;  Program name: Paramount Interviews
+;  Programming languages: Assembly, C++, bash
+;  Date program began: 2021 April 11
+;  Date of last update: 2021 April 22
+;  Date of reorganization of comments: 2021 April 22
+;  Files in this program: interview.asm, main.cpp, r.sh, chris.txt, social.txt, csmajor.txt
+;  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition (Linux).
 ;
 ;This file
-;   File name: perimeter.asm
+;   File name: interview.asm
 ;   Language: X86 with Intel syntax.
 ;   Max page width: 132 columns
-;   Assemble: nasm -f elf64 -l perimeter.lis -o perimeter.o perimeter.asm
-
-;===== Begin code area ================================================================================================
+;   Assemble: nasm -f elf64 -l interview.lis -o interview.o interview.asm
+;   Link: g++ -m64 -no-pie -o interview.out main.o interview.o -std=c++17
+;   Purpose: The "personnel manager" who will interview the user is defined here in the interview module.
+;            This function takes in a name character array and a salary double and produces technical
+;            interview questions. Will be called in main.cpp and returns a double (actual salary).
+;========================================================================================================
 
 extern printf
 extern scanf
