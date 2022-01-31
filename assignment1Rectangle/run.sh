@@ -19,4 +19,9 @@ gcc -m64 -no-pie -o final-perimeter.out perimeter.o rectangle.o -std=c11
 echo "Run the Rectange Program:"
 ./final-perimeter.out
 
+# For cleaner working directory, you can:
+# rm *.lis
+# rm *.o
+# rm *.out
+
 echo "Script file terminated."
