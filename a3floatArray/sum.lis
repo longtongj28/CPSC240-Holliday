@@ -1,0 +1,115 @@
+     1                                  ;****************************************************************************************************************************
+     2                                  ;Program name: "Add Float Array".
+     3                                  ; This program will allow a user to input float numbers in an array of size 6, and display the contents. It will also add
+     4                                  ; them together and display the result.
+     5                                  ; Copyright (C) 2021 Johnson Tong.                                                                           *
+     6                                  ;                                                                                                                           *
+     7                                  ;This file is part of the software program "Add Float Array".
+     8                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+     9                                  ;version 3 as published by the Free Software Foundation.                                                                    *
+    10                                  ;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+    11                                  ;warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
+    12                                  ;A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
+    13                                  ;****************************************************************************************************************************
+    14                                  
+    15                                  
+    16                                  
+    17                                  
+    18                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    19                                  ;
+    20                                  ;Author information
+    21                                  ;  Author name: Johnson Tong
+    22                                  ;  Author email: jt28@csu.fullerton.edu
+    23                                  ;
+    24                                  ;Program information
+    25                                  ;  Program name: Add Float Array
+    26                                  ;  Programming languages: Assembly, C++, C, bash
+    27                                  ;  Date program began: 2021 March 10
+    28                                  ;  Date of last update: 2021 March 21
+    29                                  ;  Date of reorganization of comments: 2021 March 21
+    30                                  ;  Files in this program: control.asm, main.c, display.cc, sum.asm, fill.asm, run.sh
+    31                                  ;  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition.
+    32                                  ;
+    33                                  ;This file
+    34                                  ;   File name: sum.asm
+    35                                  ;   Language: X86 with Intel syntax.
+    36                                  ;   Max page width: 132 columns
+    37                                  ;   Assemble: nasm -f elf64 -l sum.lis -o sum.o sum.asm
+    38                                  ;   Link: g++ -m64 -no-pie -o addFloatArray.out control.o fill.o main.o sum.o display.o -std=c++17
+    39                                  ;   Purpose: Defines the sum function, which will take an array and number of elements to traverse and add them together.
+    40                                  ;            The total is returned to the caller (control module).
+    41                                  
+    42                                  ;===== Begin code area ================================================================================================
+    43                                  
+    44                                  global sum
+    45                                  
+    46                                  segment .data
+    47                                  
+    48                                  segment .bss  ;Reserved for uninitialized data
+    49                                  
+    50                                  segment .text ;Reserved for executing instructions.
+    51                                  
+    52                                  sum:
+    53                                  
+    54                                  ;Prolog ===== Insurance for any caller of this assembly module ========================================================
+    55                                  ;Any future program calling this module that the data in the caller's GPRs will not be modified.
+    56 00000000 55                      push rbp
+    57 00000001 4889E5                  mov  rbp,rsp
+    58 00000004 57                      push rdi                                                    ;Backup rdi
+    59 00000005 56                      push rsi                                                    ;Backup rsi
+    60 00000006 52                      push rdx                                                    ;Backup rdx
+    61 00000007 51                      push rcx                                                    ;Backup rcx
+    62 00000008 4150                    push r8                                                     ;Backup r8
+    63 0000000A 4151                    push r9                                                     ;Backup r9
+    64 0000000C 4152                    push r10                                                    ;Backup r10
+    65 0000000E 4153                    push r11                                                    ;Backup r11
+    66 00000010 4154                    push r12                                                    ;Backup r12
+    67 00000012 4155                    push r13                                                    ;Backup r13
+    68 00000014 4156                    push r14                                                    ;Backup r14
+    69 00000016 4157                    push r15                                                    ;Backup r15
+    70 00000018 53                      push rbx                                                    ;Backup rbx
+    71 00000019 9C                      pushf                                                       ;Backup rflags
+    72                                  
+    73 0000001A 6A00                    push qword 0 ; remain on the boundary
+    74                                  ; Taking information from parameters
+    75 0000001C 4989FF                  mov r15, rdi  ; This holds the first parameter (the array)
+    76 0000001F 4989F6                  mov r14, rsi  ; This holds the second parameter (the number of elements in the array, not size)
+    77                                  
+    78                                  
+    79                                  ; loop the array and add each value to a total.
+    80 00000022 B801000000              mov rax, 1 ; one xmm register will be used
+    81 00000027 BA00000000              mov rdx, 0
+    82 0000002C F24C0F2AFA              cvtsi2sd xmm15, rdx ; convert the 0 in rdx to something xmm can read
+    83 00000031 41BD00000000            mov r13, 0 ; for loop counter goes up to 5, starting at 0
+    84                                  beginLoop:
+    85 00000037 4D39F5                    cmp r13, r14  ;comparing increment with 6 (the size of array)
+    86 0000003A 740B                      je outOfLoop
+    87 0000003C F2470F583CEF              addsd xmm15, [r15 + 8*r13]; ;add to xmm15 the value at array[counter]
+    88 00000042 49FFC5                    inc r13  ;increment loop counter
+    89 00000045 EBF0                      jmp beginLoop
+    90                                  outOfLoop:
+    91                                  
+    92                                  
+    93 00000047 58                      pop rax ;push counter at the beginning
+    94                                  
+    95 00000048 F2410F10C7              movsd xmm0, xmm15 ; returning sum to caller
+    96                                  ;===== Restore original values to integer registers ===================================================================
+    97 0000004D 9D                      popf                                                        ;Restore rflags
+    98 0000004E 5B                      pop rbx                                                     ;Restore rbx
+    99 0000004F 415F                    pop r15                                                     ;Restore r15
+   100 00000051 415E                    pop r14                                                     ;Restore r14
+   101 00000053 415D                    pop r13                                                     ;Restore r13
+   102 00000055 415C                    pop r12                                                     ;Restore r12
+   103 00000057 415B                    pop r11                                                     ;Restore r11
+   104 00000059 415A                    pop r10                                                     ;Restore r10
+   105 0000005B 4159                    pop r9                                                      ;Restore r9
+   106 0000005D 4158                    pop r8                                                      ;Restore r8
+   107 0000005F 59                      pop rcx                                                     ;Restore rcx
+   108 00000060 5A                      pop rdx                                                     ;Restore rdx
+   109 00000061 5E                      pop rsi                                                     ;Restore rsi
+   110 00000062 5F                      pop rdi                                                     ;Restore rdi
+   111 00000063 5D                      pop rbp                                                     ;Restore rbp
+   112                                  
+   113 00000064 C3                      ret
+   114                                  
+   115                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**

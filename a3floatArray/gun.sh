@@ -19,7 +19,7 @@ echo "compile sum.asm"
 nasm -f elf64 -l sum.lis -o sum.o sum.asm -g -gdwarf
 
 echo "compile display.cpp using the g++ compiler standard 2017"
-g++ -c -Wall -no-pie -m64 -std=c++17 -o display.o display.cpp -g
+g++ -c -Wall -no-pie -m64 -std=c++17 -o display.o display.cc -g
 
 echo "compile main.c using gcc compiler standard 2017"
 gcc -c -Wall -m64 -no-pie -o main.o main.c -std=c17 -g
@@ -31,3 +31,7 @@ echo "Run the Quadratic Program:"
 gdb ./addFloatArray.out
 
 echo "Script file has terminated."
+rm *.o
+rm *.lis
+rm *.out
+

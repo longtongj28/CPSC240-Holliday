@@ -1,0 +1,155 @@
+     1                                  ;****************************************************************************************************************************
+     2                                  ;Program name: "Add Float Array".
+     3                                  ; This program will allow a user to input float numbers in an array of size 6, and display the contents. It will also add
+     4                                  ; them together and display the result.
+     5                                  ; Copyright (C) 2021 Johnson Tong.                                                                           *
+     6                                  ;                                                                                                                           *
+     7                                  ;This file is part of the software program "Add Float Array".
+     8                                  ;This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+     9                                  ;version 3 as published by the Free Software Foundation.                                                                    *
+    10                                  ;This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+    11                                  ;warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
+    12                                  ;A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
+    13                                  ;****************************************************************************************************************************
+    14                                  
+    15                                  
+    16                                  
+    17                                  
+    18                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
+    19                                  ;
+    20                                  ;Author information
+    21                                  ;  Author name: Johnson Tong
+    22                                  ;  Author email: jt28@csu.fullerton.edu
+    23                                  ;
+    24                                  ;Program information
+    25                                  ;  Program name: Add Float Array
+    26                                  ;  Programming languages: Assembly, C++, C, bash
+    27                                  ;  Date program began: 2021 March 10
+    28                                  ;  Date of last update: 2021 March 21
+    29                                  ;  Date of reorganization of comments: 2021 March 21
+    30                                  ;  Files in this program: control.asm, main.c, display.cc, sum.asm, fill.asm, run.sh
+    31                                  ;  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition.
+    32                                  ;
+    33                                  ;This file
+    34                                  ;   File name: fill.asm
+    35                                  ;   Language: X86 with Intel syntax.
+    36                                  ;   Max page width: 132 columns
+    37                                  ;   Assemble: nasm -f elf64 -l fill.lis -o fill.o fill.asm
+    38                                  ;   Link: g++ -m64 -no-pie -o addFloatArray.out control.o fill.o main.o sum.o display.o -std=c++17
+    39                                  ;   Purpose: Defines the function that will take in the array from the control module and prompt the user to
+    40                                  ;            input floats into the array. Additionally, it will return the number of elements (not size) back to the
+    41                                  ;            caller.
+    42                                  ;========================================================================================================
+    43                                  extern printf
+    44                                  extern scanf
+    45                                  
+    46                                  global fill
+    47                                  
+    48                                  segment .data
+    49                                  
+    50 00000000 506C6561736520656E-     enter_prompt db "Please enter up to 6 floating point numbers separated by ws,", 10, 0
+    50 00000009 74657220757020746F-
+    50 00000012 203620666C6F617469-
+    50 0000001B 6E6720706F696E7420-
+    50 00000024 6E756D626572732073-
+    50 0000002D 657061726174656420-
+    50 00000036 62792077732C0A00   
+    51 0000003E 5768656E2066696E69-     enter_prompt_two db "When finished press enter followed by Cntrl+D.", 10, 0
+    51 00000047 736865642070726573-
+    51 00000050 7320656E7465722066-
+    51 00000059 6F6C6C6F7765642062-
+    51 00000062 7920436E74726C2B44-
+    51 0000006B 2E0A00             
+    52 0000006E 256C6600                float_format db "%lf", 0
+    53                                  
+    54                                  segment .bss  ;Reserved for uninitialized data
+    55                                  
+    56                                  segment .text ;Reserved for executing instructions.
+    57                                  
+    58                                  fill:
+    59                                  
+    60                                  ;Prolog ===== Insurance for any caller of this assembly module ========================================================
+    61                                  ;Any future program calling this module that the data in the caller's GPRs will not be modified.
+    62 00000000 55                      push rbp
+    63 00000001 4889E5                  mov  rbp,rsp
+    64 00000004 57                      push rdi                                                    ;Backup rdi
+    65 00000005 56                      push rsi                                                    ;Backup rsi
+    66 00000006 52                      push rdx                                                    ;Backup rdx
+    67 00000007 51                      push rcx                                                    ;Backup rcx
+    68 00000008 4150                    push r8                                                     ;Backup r8
+    69 0000000A 4151                    push r9                                                     ;Backup r9
+    70 0000000C 4152                    push r10                                                    ;Backup r10
+    71 0000000E 4153                    push r11                                                    ;Backup r11
+    72 00000010 4154                    push r12                                                    ;Backup r12
+    73 00000012 4155                    push r13                                                    ;Backup r13
+    74 00000014 4156                    push r14                                                    ;Backup r14
+    75 00000016 4157                    push r15                                                    ;Backup r15
+    76 00000018 53                      push rbx                                                    ;Backup rbx
+    77 00000019 9C                      pushf                                                       ;Backup rflags
+    78                                  
+    79 0000001A 6A00                    push qword 0 ;staying on the boundary
+    80                                  
+    81                                  ; Taking information from parameters
+    82 0000001C 4989FF                  mov r15, rdi  ; This holds the first parameter (the array)
+    83 0000001F 4989F6                  mov r14, rsi  ; This holds the second parameter (the size of array)
+    84                                  
+    85                                  ;Prompts:
+    86                                  ;"Please enter floating point numbers separated by ws,"
+    87                                  ;"When finished press enter followed by Cntrl+D."
+    88 00000022 6A00                    push qword 0
+    89 00000024 B800000000              mov rax, 0
+    90 00000029 48BF-                   mov rdi, enter_prompt
+    90 0000002B [0000000000000000] 
+    91 00000033 E8(00000000)            call printf
+    92 00000038 58                      pop rax
+    93 00000039 6A00                    push qword 0
+    94 0000003B B800000000              mov rax, 0
+    95 00000040 48BF-                   mov rdi, enter_prompt_two
+    95 00000042 [3E00000000000000] 
+    96 0000004A E8(00000000)            call printf
+    97 0000004F 58                      pop rax
+    98                                  
+    99                                  ; let user enter numbers until cntrl + d is entered
+   100                                  ; this for loop will go to 6, the chosen array size, or end once cntrl d is pressed.
+   101 00000050 41BD00000000            mov r13, 0 ; for loop counter
+   102                                  beginLoop:
+   103 00000056 4D39EE                    cmp r14, r13 ; we want to exit loop when we hit the size of array
+   104 00000059 742C                      je outOfLoop
+   105 0000005B B800000000                mov rax, 0
+   106 00000060 48BF-                     mov rdi, float_format
+   106 00000062 [6E00000000000000] 
+   107 0000006A 6A00                      push qword 0
+   108 0000006C 4889E6                    mov rsi, rsp
+   109 0000006F E8(00000000)              call scanf
+   110 00000074 4898                      cdqe
+   111 00000076 4883F8FF                  cmp rax, -1  ; loop termination condition: user enters cntrl + d.
+   112 0000007A 415C                      pop r12
+   113 0000007C 7409                      je outOfLoop
+   114 0000007E 4F8924EF                  mov [r15 + 8*r13], r12  ;at array[counter], place the input number
+   115 00000082 49FFC5                    inc r13  ;increment loop counter
+   116 00000085 EBCF                      jmp beginLoop
+   117                                  outOfLoop:
+   118                                  
+   119 00000087 58                      pop rax ; counter push at the beginning
+   120 00000088 4C89E8                  mov rax, r13  ; store the number of things in the aray from the counter of for loop
+   121                                  
+   122                                  ;===== Restore original values to integer registers ===================================================================
+   123 0000008B 9D                      popf                                                        ;Restore rflags
+   124 0000008C 5B                      pop rbx                                                     ;Restore rbx
+   125 0000008D 415F                    pop r15                                                     ;Restore r15
+   126 0000008F 415E                    pop r14                                                     ;Restore r14
+   127 00000091 415D                    pop r13                                                     ;Restore r13
+   128 00000093 415C                    pop r12                                                     ;Restore r12
+   129 00000095 415B                    pop r11                                                     ;Restore r11
+   130 00000097 415A                    pop r10                                                     ;Restore r10
+   131 00000099 4159                    pop r9                                                      ;Restore r9
+   132 0000009B 4158                    pop r8                                                      ;Restore r8
+   133 0000009D 59                      pop rcx                                                     ;Restore rcx
+   134 0000009E 5A                      pop rdx                                                     ;Restore rdx
+   135 0000009F 5E                      pop rsi                                                     ;Restore rsi
+   136 000000A0 5F                      pop rdi                                                     ;Restore rdi
+   137 000000A1 5D                      pop rbp                                                     ;Restore rbp
+   138                                  
+   139 000000A2 C3                      ret
+   140                                  
+   141                                  ;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**

@@ -47,12 +47,16 @@ input1prompt db "Enter the height: ",0
 input2prompt db "Enter the width: ", 0
 
 one_float_format db "%lf",0
+three_float_format db "%lf %lf %lf", 0
 
 output_perimeter_float db "The perimeter is %.15lf.",10,0
 output_average_float db "The length of the average side is %.15lf.", 10, 0
 
 goodbye db "I hope you enjoyed your rectangle.",10,0
 goodbye2 db "The assembly program will send the perimeter to the main function.", 10,0
+one_string_format db "%s", 0
+
+welcome_output db "Good morning %s", 10,0
 
 four dq 4.0
 
@@ -88,10 +92,55 @@ mov rdi, welcome            ;"Welcome to a friendly assembly program by Johnson 
 call printf
 
 push qword 0
+
+sub rsp, 1024 ; make space for 1 string
+mov rax, 0
+mov rdi, one_string_format
+mov rsi, rsp
+mov rdx, rsp
+add rdx, 1024
+call scanf
+
+mov rax, 0
+mov rdi, welcome_output
+mov rsi, rsp
+call printf
+
+add rsp, 1024
+pop rax
+
+push qword 0
 mov rax, 0
 mov rdi, welcome2
 call printf
 pop rax
+
+    ; push qword 0 ; just pretend this isn't here
+	
+	push qword 0 ; push 8 bytes to top of stack for storage
+	push qword 0
+	push qword 0
+	
+	mov rdi, three_float_format ; move float format into first parameter register // rdi = "%lf %lf %lf"
+	mov rsi, rsp ; <- second arg register now points to top of stack
+	mov rdx, rsp
+	add rdx, qword 8 ; rdx points to second qword
+	mov rcx, rsp
+	add rcx, qword 16 ; rcx points to third qword
+	call scanf ; scanf("%lf %lf %lf", rsp, rsp + 8, rsp + 16);
+	
+	movsd xmm15, [rsp+0] ; dereference the data at the top of stack, store in xmm15 
+	movsd xmm14, [rsp+8]
+	movsd xmm13, [rsp+16]
+	
+	; [ ] are equivalent to *dereference in c++
+	
+	pop rax ; restore stack, i.e. since we're done with the 8 bytes at the top, remove them
+	
+	; for the actual numbers
+	pop rax
+	pop rax 
+	; pop rax
 
 ;=========begin inputs for height and width===================
 push qword 0

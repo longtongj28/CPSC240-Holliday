@@ -58,6 +58,10 @@ show_quadratic db "Thank you. The equation is %.9lfx^2 + %.9lfx + %.9lf = 0.0.",
 one_return db "One of these roots will be returned to the caller function.", 10, 0
 invalid db "Invalid input data detected. You may run this program again.", 10, 0
 not_quadratic db "This is not a quadratic equation. You may run this program again.", 10, 0
+
+HELLO_VAR db "HELLOOOOOOO", 10, 0
+JOHNSON db "jOHNson", 10, 0
+
 segment .bss  ;Reserved for uninitialized data
 
 segment .text ;Reserved for executing instructions.
@@ -82,7 +86,24 @@ push r14                                                    ;Backup r14
 push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
+; planning for assignment 2
+;welcome
+;prompt for first_name and last name
+;scanf for those inputs
+;show prompt for job title
+;print ...
+;enter the height
+;calculate the time it takes for free fall 1/2*g*t^2 = h
+;sqrt(2h/g)
+;g = 9.8
 
+; jl, jle, je, jne, jg, jge
+
+; if (rax <= 30) print out "HELLOOOOOOO"
+; else print out "Johnson"
+
+
+; IF (X != 27) print out "Not 27"
 ;Registers rax, rip, and rsp are usually not backed up.
 push qword 0
 
@@ -90,6 +111,28 @@ push qword 0
 push qword 0
 mov rax, 0
 mov rdi, welcome ; "This program will find the roots of any quadratic equation."
+call printf
+pop rax
+
+
+push qword 0
+mov r14, 30
+mov r15, 20
+cmp r14, r15
+pop rax
+
+jle next_part
+
+push qword 0
+mov rax, 0
+mov rdi, JOHNSON
+call printf
+pop rax
+
+next_part:
+push qword 0
+mov rax, 0
+mov rdi, HELLO_VAR
 call printf
 pop rax
 
