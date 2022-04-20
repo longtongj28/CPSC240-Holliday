@@ -1,6 +1,6 @@
 extern printf
 extern scanf
-
+extern compute_sum
 global manager
 
 segment .data
@@ -43,10 +43,10 @@ call scanf
 ; pop 8 bytes off into r15 from rsp
 pop r15
 
-mov rax, 0
-mov rdi, one_integer_format
-mov rsi, r15
-call printf
+; mov rax, 0
+; mov rdi, one_integer_format
+; mov rsi, r15
+; call printf
 
 
 ; half of it is placed in rax, other half in rdx
@@ -68,10 +68,11 @@ mov r14, rdx
 ; mov rdi, one_integer_format
 ; mov rsi, r14
 ; call printf
+
 mov rax, 0
 mov rdi, r15
 call compute_sum
-
+movsd xmm15, xmm0
 
 ; get the time in tics (end) r13
 cpuid
@@ -90,6 +91,7 @@ sub r13, r14
 ; pop rax
 pop rax
 
+movsd xmm0, xmm15
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx

@@ -9,9 +9,9 @@ extern "C" double manager();
 
 int main(int argc, char *argv[])
 {
-    printf("Welcome to Harmonic Sum created by author Sam Fleece");
+    printf("Welcome to Harmonic Sum created by author Sam Fleece\n");
     double answer = manager();
-    std::cout << answer << std::endl;
+    std::cout << "Answer that was returned to driver " << answer << std::endl;
     return 0;
 }
 

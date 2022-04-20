@@ -20,7 +20,7 @@ echo "compile harmonic.cpp using the g++ compiler standard 2017"
 g++ -c -Wall -no-pie -m64 -std=c++17 -o harmonic.o harmonic.cpp
 
 echo "compile outputoneline.c using gcc compiler standard 2017"
-g++ -c -Wall -m64 -no-pie -o outputoneline.o outputoneline.c -std=c++17
+gcc -c -Wall -m64 -no-pie -o outputoneline.o outputoneline.c -std=c17
 
 echo "Link object files using the gcc Linker standard 2017"
 g++ -m64 -no-pie -o final.out manager.o harmonic.o outputoneline.o compute_sum.o -std=c++17

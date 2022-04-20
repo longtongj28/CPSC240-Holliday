@@ -1,17 +1,19 @@
 extern printf
 extern scanf
+extern outputoneline
 
-global manager
+global compute_sum
 
 segment .data
 one_integer_format db "%ld", 0
+one_float_format db "%.10lf", 10, 0
 
 segment .bss  ;Reserved for uninitialized data
 the_array resq 2 ; array of 6 quad words reserved before run time.
 
 segment .text ;Reserved for executing instructions.
 
-manager:
+compute_sum:
 
 ;Prolog ===== Insurance for any caller of this assembly module ========================================================
 ;Any future program calling this module that the data in the caller's GPRs will not be modified.
@@ -32,12 +34,50 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
+mov r15, rdi ; taking user n from parameter rdi
+
 push qword 0
 
+xorpd xmm15, xmm15 ; sum = 0
+
+; 1.0 in xmm14
+mov rax, 1
+cvtsi2sd xmm14, rax
+
+mov r14, 1 ; i = 1
+begin_loop:
+; float 1 / i
+; 1 to a float and i to a float
+cvtsi2sd xmm13, r14
+movsd xmm12, xmm14 ; save the 1.0 in xmm14, by making a copy
+divsd xmm12, xmm13
+
+addsd xmm15, xmm12
+
+mov rax, 1
+mov rdi, r14
+movsd xmm0, xmm15
+mov rsi, r15
+call outputoneline
+
+inc r14
+; n = 5
+; i = 4 + 1 = 5 + 1
+cmp r14, r15
+jg end_loop
+
+jmp begin_loop
+
+end_loop:
 ; print term# sum
 
-pop rax
+; mov rax, 1
+; mov rdi, one_float_format
+; movsd xmm0, xmm15
+; call printf
 
+pop rax
+movsd xmm0, xmm15
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
