@@ -1,0 +1,4 @@
+No symbol "redirect" in current context.
+warning: Currently logging to gdb.txt.  Turn the logging off and on to make the new setting effective.
+No breakpoints or watchpoints.
+No breakpoints or watchpoints.

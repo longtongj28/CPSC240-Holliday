@@ -1,0 +1,5 @@
+Output the first 12 quadwords of the the current AR
+x/12xg $rsp
+
+Output the number of qwords in the current AR
+p/d ($rbp-$rsp)/8 + 1

@@ -1,20 +1,13 @@
-extern printf
-extern scanf
-extern compute_sum
-global manager
-
+global compute
 segment .data
-one_integer_format db "%ld", 0
+one dq 1.0
 
-segment .bss  ;Reserved for uninitialized data
-the_array resq 2 ; array of 6 quad words reserved before run time.
+segment .bss
 
-segment .text ;Reserved for executing instructions.
+segment .text
 
-manager:
+compute:
 
-;Prolog ===== Insurance for any caller of this assembly module ========================================================
-;Any future program calling this module that the data in the caller's GPRs will not be modified.
 push rbp
 mov  rbp,rsp
 push rdi                                                    ;Backup rdi
@@ -32,69 +25,28 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-push qword 0
+mov r15, rdi
 
-push qword 0
-mov rax, 0
-mov rdi, one_integer_format
-mov rsi, rsp
-; 844 goes on stack (8 bytes)
-call scanf
-; pop 8 bytes off into r15 from rsp
-pop r15
+movsd xmm8, [one]
+movsd xmm9, [one]
+movsd xmm10, [one]
+; =====Time to calculate the total resistance=======
+; 1/r = 1/R1 + 1/R2 + 1/R3
+; r = 1/(1/R1 + 1/R2 + 1/R3)
+; doing 1/R1, 1/R2, 1/R3 and adding them, registers xmm5-7 contain our resistances
+divsd xmm8, [r15]
+divsd xmm9, [r15+8]
+divsd xmm10, [r15+16]
+; adding them together, total will now be stored in xmm8
+addsd xmm8, xmm9
+addsd xmm8, xmm10
+; doing 1/rTotal (stored in xmm11)
+movsd xmm11, [one]
+divsd xmm11, xmm8
 
-; mov rax, 0
-; mov rdi, one_integer_format
-; mov rsi, r15
-; call printf
 
+movsd xmm0, xmm11
 
-; half of it is placed in rax, other half in rdx
-; _________________ _________half of the bits_________ rax
-; _________________ __________other half goes here________ rdx
-; _________half of the bits_________ _________________  rax
-; _________________ __________other half goes here________ rdx
-; combine those halves and place result in rdx
-
-; get the time in tics (start) r14
-cpuid
-rdtsc
-shl rax, 32
-add rdx, rax
-mov r14, rdx
-;=============
-
-push qword 0
-mov rax, 0
-mov rdi, one_integer_format
-mov rsi, r14
-call printf
-pop rax
-
-mov rax, 0
-mov rdi, r15
-call compute_sum
-movsd xmm15, xmm0
-
-; get the time in tics (end) r13
-cpuid
-rdtsc
-shl rax, 32
-add rdx, rax
-mov r13, rdx
-;=============
-
-; end - start, r13 - r14
-sub r13, r14
-; push qword 0
-; mov rax, 0
-; mov rdi, the_array
-; call get_time_card
-; pop rax
-pop rax
-
-movsd xmm0, xmm15
-;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
 pop r15                                                     ;Restore r15
@@ -112,13 +64,3 @@ pop rdi                                                     ;Restore rdi
 pop rbp                                                     ;Restore rbp
 
 ret
-
-;========1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
-
-
-; get_time_card.asm
-; the_array - rdi
-
-; compute_wage.cpp
-
-; show_pay_stub.asm

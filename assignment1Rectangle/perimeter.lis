@@ -155,153 +155,137 @@
    115 0000008A E8(00000000)            call printf
    116 0000008F 58                      pop rax
    117                                  
-   118                                  
-   119 00000090 4881ECC0000000          sub rsp, 192
-   120 00000097 B803000000              mov rax, 3 
-   121 0000009C 48BF-                   mov rdi, three_float_format
-   121 0000009E [B600000000000000] 
-   122 000000A6 4889E6                  mov rsi, rsp
-   123 000000A9 E8(00000000)            call scanf
-   124                                  
-   125 000000AE F2440F103C24            movsd xmm15, [rsp]  ; degrees
-   126                                  
-   127 000000B4 F2440F10742440          movsd xmm14, [rsp+64]  ; side 2
-   128                                  
-   129 000000BB F2440F10AC24800000-     movsd xmm13, [rsp+128]  ; side 1
-   129 000000C4 00                 
-   130 000000C5 4881C4C0000000          add rsp, 192
-   131                                  
-   132                                      ; push qword 0 ; just pretend this isn't here
-   133                                  	
-   134 000000CC 6A00                    	push qword 0 ; push 8 bytes to top of stack for storage
-   135 000000CE 6A00                    	push qword 0
-   136 000000D0 6A00                    	push qword 0
+   118                                      ; push qword 0 ; just pretend this isn't here
+   119                                  	
+   120 00000090 6A00                    	push qword 0 ; push 8 bytes to top of stack for storage
+   121 00000092 6A00                    	push qword 0
+   122 00000094 6A00                    	push qword 0
+   123                                  	
+   124 00000096 48BF-                   	mov rdi, three_float_format ; move float format into first parameter register // rdi = "%lf %lf %lf"
+   124 00000098 [B600000000000000] 
+   125 000000A0 4889E6                  	mov rsi, rsp ; <- second arg register now points to top of stack
+   126 000000A3 4889E2                  	mov rdx, rsp
+   127 000000A6 4883C208                	add rdx, qword 8 ; rdx points to second qword
+   128 000000AA 4889E1                  	mov rcx, rsp
+   129 000000AD 4883C110                	add rcx, qword 16 ; rcx points to third qword
+   130 000000B1 E8(00000000)            	call scanf ; scanf("%lf %lf %lf", rsp, rsp + 8, rsp + 16);
+   131                                  	
+   132 000000B6 F2440F103C24            	movsd xmm15, [rsp+0] ; dereference the data at the top of stack, store in xmm15 
+   133 000000BC F2440F10742408          	movsd xmm14, [rsp+8]
+   134 000000C3 F2440F106C2410          	movsd xmm13, [rsp+16]
+   135                                  	
+   136                                  	; [ ] are equivalent to *dereference in c++
    137                                  	
-   138 000000D2 48BF-                   	mov rdi, three_float_format ; move float format into first parameter register // rdi = "%lf %lf %lf"
-   138 000000D4 [B600000000000000] 
-   139 000000DC 4889E6                  	mov rsi, rsp ; <- second arg register now points to top of stack
-   140 000000DF 4889E2                  	mov rdx, rsp
-   141 000000E2 4883C208                	add rdx, qword 8 ; rdx points to second qword
-   142 000000E6 4889E1                  	mov rcx, rsp
-   143 000000E9 4883C110                	add rcx, qword 16 ; rcx points to third qword
-   144 000000ED E8(00000000)            	call scanf ; scanf("%lf %lf %lf", rsp, rsp + 8, rsp + 16);
-   145                                  	
-   146 000000F2 F2440F103C24            	movsd xmm15, [rsp+0] ; dereference the data at the top of stack, store in xmm15 
-   147 000000F8 F2440F10742408          	movsd xmm14, [rsp+8]
-   148 000000FF F2440F106C2410          	movsd xmm13, [rsp+16]
-   149                                  	
-   150                                  	; [ ] are equivalent to *dereference in c++
-   151                                  	
-   152 00000106 58                      	pop rax ; restore stack, i.e. since we're done with the 8 bytes at the top, remove them
-   153                                  	
-   154                                  	; for the actual numbers
-   155 00000107 58                      	pop rax
-   156 00000108 58                      	pop rax 
-   157                                  	; pop rax
-   158                                  
-   159                                  ;=========begin inputs for height and width===================
-   160 00000109 6A00                    push qword 0
-   161                                  ;Display a prompt message asking for inputs
-   162 0000010B B800000000              mov rax, 0
-   163 00000110 48BF-                   mov rdi, input1prompt         ;"Enter the height: "
-   163 00000112 [8D00000000000000] 
-   164 0000011A E8(00000000)            call printf
-   165 0000011F 58                      pop rax
-   166                                  
-   167                                  ;Begin the scanf block
-   168 00000120 6A00                    push qword 0
-   169 00000122 B801000000              mov rax, 1
-   170 00000127 48BF-                   mov rdi, one_float_format
-   170 00000129 [B200000000000000] 
-   171 00000131 4889E6                  mov rsi, rsp
-   172 00000134 E8(00000000)            call scanf
-   173 00000139 F2440F101424            movsd xmm10, [rsp]
-   174 0000013F 58                      pop rax
-   175                                  
-   176 00000140 6A00                    push qword 0
-   177                                  ;Display a prompt message asking for inputs
-   178 00000142 B800000000              mov rax, 0
-   179 00000147 48BF-                   mov rdi, input2prompt       ; "Enter the width: "
-   179 00000149 [A000000000000000] 
-   180 00000151 E8(00000000)            call printf
-   181 00000156 58                      pop rax
-   182                                  
-   183                                  ;Begin the scanf block
-   184 00000157 6A00                    push qword 0
-   185 00000159 B801000000              mov rax, 1
-   186 0000015E 48BF-                   mov rdi, one_float_format
-   186 00000160 [B200000000000000] 
-   187 00000168 4889E6                  mov rsi, rsp
-   188 0000016B E8(00000000)            call scanf
-   189 00000170 F2440F101C24            movsd xmm11, [rsp]
-   190 00000176 58                      pop rax
-   191                                  
-   192                                  
+   138 000000CA 58                      	pop rax ; restore stack, i.e. since we're done with the 8 bytes at the top, remove them
+   139                                  	
+   140                                  	; for the actual numbers
+   141 000000CB 58                      	pop rax
+   142 000000CC 58                      	pop rax 
+   143                                  	; pop rax
+   144                                  
+   145                                  ;=========begin inputs for height and width===================
+   146 000000CD 6A00                    push qword 0
+   147                                  ;Display a prompt message asking for inputs
+   148 000000CF B800000000              mov rax, 0
+   149 000000D4 48BF-                   mov rdi, input1prompt         ;"Enter the height: "
+   149 000000D6 [8D00000000000000] 
+   150 000000DE E8(00000000)            call printf
+   151 000000E3 58                      pop rax
+   152                                  
+   153                                  ;Begin the scanf block
+   154 000000E4 6A00                    push qword 0
+   155 000000E6 B801000000              mov rax, 1
+   156 000000EB 48BF-                   mov rdi, one_float_format
+   156 000000ED [B200000000000000] 
+   157 000000F5 4889E6                  mov rsi, rsp
+   158 000000F8 E8(00000000)            call scanf
+   159 000000FD F2440F101424            movsd xmm10, [rsp]
+   160 00000103 58                      pop rax
+   161                                  
+   162 00000104 6A00                    push qword 0
+   163                                  ;Display a prompt message asking for inputs
+   164 00000106 B800000000              mov rax, 0
+   165 0000010B 48BF-                   mov rdi, input2prompt       ; "Enter the width: "
+   165 0000010D [A000000000000000] 
+   166 00000115 E8(00000000)            call printf
+   167 0000011A 58                      pop rax
+   168                                  
+   169                                  ;Begin the scanf block
+   170 0000011B 6A00                    push qword 0
+   171 0000011D B801000000              mov rax, 1
+   172 00000122 48BF-                   mov rdi, one_float_format
+   172 00000124 [B200000000000000] 
+   173 0000012C 4889E6                  mov rsi, rsp
+   174 0000012F E8(00000000)            call scanf
+   175 00000134 F2440F101C24            movsd xmm11, [rsp]
+   176 0000013A 58                      pop rax
+   177                                  
+   178                                  
+   179                                  
+   180                                  ;=================Calculate perimeter=====================
+   181 0000013B F2450F10E2              movsd xmm12, xmm10             ; preserve the height
+   182 00000140 F2450F10EB              movsd xmm13, xmm11             ; preserve the width
+   183 00000145 F2450F58E3              addsd xmm12, xmm11
+   184 0000014A F2450F58EA              addsd xmm13, xmm10
+   185 0000014F F2450F58E5              addsd xmm12, xmm13
+   186                                  
+   187 00000154 6A00                    push qword 0
+   188 00000156 B801000000              mov rax, 1
+   189 0000015B F2410F10C4              movsd xmm0, xmm12
+   190 00000160 48BF-                   mov rdi, output_perimeter_float    ;"The perimeter is %.3lf."
+   190 00000162 [C200000000000000] 
+   191 0000016A E8(00000000)            call printf
+   192 0000016F 58                      pop rax
    193                                  
-   194                                  ;=================Calculate perimeter=====================
-   195 00000177 F2450F10E2              movsd xmm12, xmm10             ; preserve the height
-   196 0000017C F2450F10EB              movsd xmm13, xmm11             ; preserve the width
-   197 00000181 F2450F58E3              addsd xmm12, xmm11
-   198 00000186 F2450F58EA              addsd xmm13, xmm10
-   199 0000018B F2450F58E5              addsd xmm12, xmm13
-   200                                  
-   201 00000190 6A00                    push qword 0
-   202 00000192 B801000000              mov rax, 1
-   203 00000197 F2410F10C4              movsd xmm0, xmm12
-   204 0000019C 48BF-                   mov rdi, output_perimeter_float    ;"The perimeter is %.3lf."
-   204 0000019E [C200000000000000] 
-   205 000001A6 E8(00000000)            call printf
-   206 000001AB 58                      pop rax
-   207                                  
-   208 000001AC F2450F10FC              movsd xmm15, xmm12                  ;save the perimeter before modifying
-   209                                  ;=================Calculate average=======================
-   210                                  ; two alternative ways to do the average
-   211 000001B1 F2440F5E2425-           divsd xmm12, [four]
-   211 000001B7 [83010000]         
-   212                                  ; mov r8, 4
-   213                                  ; cvtsi2sd xmm13, r8
-   214                                  ; divsd xmm12, xmm13
-   215                                  
-   216 000001BB 6A00                    push qword 0
-   217 000001BD B801000000              mov rax, 1
-   218 000001C2 F2410F10C4              movsd xmm0, xmm12
-   219 000001C7 48BF-                   mov rdi, output_average_float     ;"The length of the average side is %.3lf"
-   219 000001C9 [DC00000000000000] 
-   220 000001D1 E8(00000000)            call printf
-   221 000001D6 58                      pop rax
+   194 00000170 F2450F10FC              movsd xmm15, xmm12                  ;save the perimeter before modifying
+   195                                  ;=================Calculate average=======================
+   196                                  ; two alternative ways to do the average
+   197 00000175 F2440F5E2425-           divsd xmm12, [four]
+   197 0000017B [83010000]         
+   198                                  ; mov r8, 4
+   199                                  ; cvtsi2sd xmm13, r8
+   200                                  ; divsd xmm12, xmm13
+   201                                  
+   202 0000017F 6A00                    push qword 0
+   203 00000181 B801000000              mov rax, 1
+   204 00000186 F2410F10C4              movsd xmm0, xmm12
+   205 0000018B 48BF-                   mov rdi, output_average_float     ;"The length of the average side is %.3lf"
+   205 0000018D [DC00000000000000] 
+   206 00000195 E8(00000000)            call printf
+   207 0000019A 58                      pop rax
+   208                                  
+   209 0000019B 6A00                    push qword 0
+   210 0000019D B800000000              mov rax, 0
+   211 000001A2 48BF-                   mov rdi, goodbye       ; "I hope you enjoyed your rectangle."
+   211 000001A4 [0701000000000000] 
+   212 000001AC E8(00000000)            call printf
+   213 000001B1 58                      pop rax
+   214                                  
+   215 000001B2 6A00                    push qword 0
+   216 000001B4 B800000000              mov rax, 0
+   217 000001B9 48BF-                   mov rdi, goodbye2       ; "The assembly program will send the perimeter to the main function."
+   217 000001BB [2B01000000000000] 
+   218 000001C3 E8(00000000)            call printf
+   219 000001C8 58                      pop rax
+   220                                  
+   221 000001C9 58                      pop rax
    222                                  
-   223 000001D7 6A00                    push qword 0
-   224 000001D9 B800000000              mov rax, 0
-   225 000001DE 48BF-                   mov rdi, goodbye       ; "I hope you enjoyed your rectangle."
-   225 000001E0 [0701000000000000] 
-   226 000001E8 E8(00000000)            call printf
-   227 000001ED 58                      pop rax
-   228                                  
-   229 000001EE 6A00                    push qword 0
-   230 000001F0 B800000000              mov rax, 0
-   231 000001F5 48BF-                   mov rdi, goodbye2       ; "The assembly program will send the perimeter to the main function."
-   231 000001F7 [2B01000000000000] 
-   232 000001FF E8(00000000)            call printf
-   233 00000204 58                      pop rax
-   234                                  
-   235 00000205 58                      pop rax
-   236                                  
-   237 00000206 F2410F10C7              movsd xmm0, xmm15
-   238                                  ;===== Restore original values to integer registers ===================================================================
-   239 0000020B 9D                      popf                                                        ;Restore rflags
-   240 0000020C 5B                      pop rbx                                                     ;Restore rbx
-   241 0000020D 415F                    pop r15                                                     ;Restore r15
-   242 0000020F 415E                    pop r14                                                     ;Restore r14
-   243 00000211 415D                    pop r13                                                     ;Restore r13
-   244 00000213 415C                    pop r12                                                     ;Restore r12
-   245 00000215 415B                    pop r11                                                     ;Restore r11
-   246 00000217 415A                    pop r10                                                     ;Restore r10
-   247 00000219 4159                    pop r9                                                      ;Restore r9
-   248 0000021B 4158                    pop r8                                                      ;Restore r8
-   249 0000021D 59                      pop rcx                                                     ;Restore rcx
-   250 0000021E 5A                      pop rdx                                                     ;Restore rdx
-   251 0000021F 5E                      pop rsi                                                     ;Restore rsi
-   252 00000220 5F                      pop rdi                                                     ;Restore rdi
-   253 00000221 5D                      pop rbp                                                     ;Restore rbp
-   254                                  
-   255 00000222 C3                      ret
+   223 000001CA F2410F10C7              movsd xmm0, xmm15
+   224                                  ;===== Restore original values to integer registers ===================================================================
+   225 000001CF 9D                      popf                                                        ;Restore rflags
+   226 000001D0 5B                      pop rbx                                                     ;Restore rbx
+   227 000001D1 415F                    pop r15                                                     ;Restore r15
+   228 000001D3 415E                    pop r14                                                     ;Restore r14
+   229 000001D5 415D                    pop r13                                                     ;Restore r13
+   230 000001D7 415C                    pop r12                                                     ;Restore r12
+   231 000001D9 415B                    pop r11                                                     ;Restore r11
+   232 000001DB 415A                    pop r10                                                     ;Restore r10
+   233 000001DD 4159                    pop r9                                                      ;Restore r9
+   234 000001DF 4158                    pop r8                                                      ;Restore r8
+   235 000001E1 59                      pop rcx                                                     ;Restore rcx
+   236 000001E2 5A                      pop rdx                                                     ;Restore rdx
+   237 000001E3 5E                      pop rsi                                                     ;Restore rsi
+   238 000001E4 5F                      pop rdi                                                     ;Restore rdi
+   239 000001E5 5D                      pop rbp                                                     ;Restore rbp
+   240                                  
+   241 000001E6 C3                      ret

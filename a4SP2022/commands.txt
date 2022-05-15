@@ -1,0 +1,14 @@
+b harmonic.cpp:12
+b manager.asm:18
+b harmonic.cpp:14
+r
+p/x $xmm0.v2_int64[0]
+x/1xg $rbp
+p/d ($rbp - $rsp)/8 + 1
+x/12xg $rsp
+c
+10
+x/1sb &one_integer_format
+x/1xg *(long*)$rbp
+c
+p/x $xmm0
