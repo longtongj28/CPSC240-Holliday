@@ -122,11 +122,13 @@ pop rax
 	push qword 0
 	
 	mov rdi, three_float_format ; move float format into first parameter register // rdi = "%lf %lf %lf"
+
 	mov rsi, rsp ; <- second arg register now points to top of stack
 	mov rdx, rsp
-	add rdx, qword 8 ; rdx points to second qword
+	add rdx, 8 ; rdx points to second qword
+
 	mov rcx, rsp
-	add rcx, qword 16 ; rcx points to third qword
+	add rcx, 16 ; rcx points to third qword
 	call scanf ; scanf("%lf %lf %lf", rsp, rsp + 8, rsp + 16);
 	
 	movsd xmm15, [rsp+0] ; dereference the data at the top of stack, store in xmm15 
