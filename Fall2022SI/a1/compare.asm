@@ -47,7 +47,10 @@ mov rsi, rsp
 
 mov rdx, rsp
 add rdx, 1024
+mov r15, rsp
+mov r14, rdx
 call scanf
+
 ;====================
 ; push qword 0
 ; mov rax, 0
@@ -65,40 +68,38 @@ call scanf
 ; mov r14, [rsp]
 ; pop rax
 
-
 ;check if first string is bad input
 mov rax, 0
-mov rdi, rsp
+mov rdi, r15
 call isFloat
 cmp rax, 0
 je BadMessage
 
 ; validate second float
 mov rax, 0
-mov rdi, rdx
+mov rdi, r14
 call isFloat
 cmp rax, 0
 je BadMessage
 
-;is a float, convert to float (first float)
 mov rax, 0
-mov rdi, rsp
-call atof
-movsd xmm15, xmm0
-
-mov rax, 0
-mov rdi, rdx
+mov rdi, r14
 call atof
 movsd xmm14, xmm0
 
+;is a float, convert to float (first float)
+mov rax, 0
+mov rdi, r15
+call atof
+movsd xmm15, xmm0
+
+
 ; print out the 2 nums, this is seg faulting for some reason, figure out if u can
-; push qword 0
-; mov rax, 2
-; mov rdi, two_float_format
-; movsd xmm0, xmm15
-; movsd xmm1, xmm14
-; call printf
-; pop rax
+mov rax, 2
+mov rdi, two_float_format
+movsd xmm0, xmm15
+movsd xmm1, xmm14
+call printf
 
 jmp end
 
