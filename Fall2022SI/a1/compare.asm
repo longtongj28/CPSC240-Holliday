@@ -40,18 +40,20 @@ mov rdi, input_prompt
 call printf
 
 ;take in 2 strings
-sub rsp, 2048 ; make space for 1 string
+sub rsp, 2048 ; make space for 2 strings
 mov rax, 0
+; scanf needs the 2 strings' locations
 mov rdi, two_string_format
 mov rsi, rsp
-
 mov rdx, rsp
 add rdx, 1024
+; save the addresses of the string locations on the stack
 mov r15, rsp
 mov r14, rdx
 call scanf
 
 ;====================
+; if you want to try to do scanf in individual blocks.
 ; push qword 0
 ; mov rax, 0
 ; mov rdi, single_formatter
@@ -101,6 +103,10 @@ movsd xmm0, xmm15
 movsd xmm1, xmm14
 call printf
 
+; TODO: print out the larger float
+; TODO: return the smaller float to the driver
+; TODO: return -1 to the driver if the user provides invalid floats.
+
 jmp end
 
 BadMessage:
@@ -110,6 +116,10 @@ call printf
 ;print "bad"
 end:
 add rsp, 2048
+
+; returning floats should go in xmm0, non-floats in rax.
+; below is a way to "fast-zero" an xmm register.
+xorpd xmm0, xmm0
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
