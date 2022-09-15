@@ -24,6 +24,7 @@ g++ -m64 -no-pie -o final.out compare.o driver.o isFloat.o -std=c++17 -g
 
 echo "Run the Quadratic Program:"
 gdb ./final.out
+# gdb ./final.out < commands.txt
 
 echo "Script file has terminated."
 

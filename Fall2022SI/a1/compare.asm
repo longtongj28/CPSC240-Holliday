@@ -10,6 +10,7 @@ input_prompt db "Please enter two float numbers separated by white space. Press 
 two_string_format db "%s %s", 0
 bad_message db "bad float", 10, 0
 two_float_format db "Your numbers are %.16lf and %.16lf", 10, 0
+one_float_format db "C is %.16lf", 10, 0
 segment .bss
 
 segment .text
@@ -59,7 +60,7 @@ call scanf
 ; mov rdi, single_formatter
 ; mov rsi, rsp
 ; call scanf
-; mov r15, [rsp]
+; movsd xmm10, [rsp]
 ; pop rax
 
 ; push qword 0
@@ -69,6 +70,26 @@ call scanf
 ; call scanf
 ; mov r14, [rsp]
 ; pop rax
+
+; putting zero into xmms
+; mov rax, 0
+; cvtsi2sd xmm5, rax
+
+; movsd xmm0, 0x0000000000000000
+
+; ;"Fast zero"
+; xorpd xmm7, xmm7
+; ; OR statements
+; ; True || False = True
+; ; False || True = True
+; ; TRUE || TRUE = True
+; ; XOR
+; ; True || False = True
+; ; False || True = True
+; ; TRUE || TRUE = False
+; ; FALSE || FALSE = False
+; ucomisd xmm6, xmm7
+; jle BadMessage
 
 ;check if first string is bad input
 mov rax, 0
@@ -95,6 +116,34 @@ mov rdi, r15
 call atof
 movsd xmm15, xmm0
 
+; a^2 + b^2 = c^2
+; c = sqrt(a^2 + b^2)
+; c = sqrt(a*a + b*b)
+; xmm14 - a, xmm15 - b
+movsd xmm13, xmm14
+mulsd xmm13, xmm13
+
+movsd xmm12, xmm15
+mulsd xmm12, xmm12
+
+addsd xmm12, xmm13
+sqrtsd xmm12, xmm12
+
+mov rax, 1
+mov rdi, one_float_format
+movsd xmm0, xmm12
+call printf
+
+; Putting 1/2 into xmms
+; movsd xmm0, 0x7FFF1ABC
+
+; mov rax, 1
+; cvtsi2sd xmm10, rax
+
+; mov rax, 2
+; cvtsi2sd xmm9, rax
+
+; divsd xmm10, xmm9
 
 ; print out the 2 nums, this is seg faulting for some reason, figure out if u can
 mov rax, 2

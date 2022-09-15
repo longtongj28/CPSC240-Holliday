@@ -1,0 +1,5 @@
+b compare.asm:15
+r
+n
+n
+p/x $rsp
