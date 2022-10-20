@@ -8,7 +8,7 @@ extern "C" double stringtof(const char* test);
 int main (int argc, char* argv[]) {
     std::cout << "Correct library cos answer = " << cos(15) << std::endl;
     std::cout << "Custom Cosine answer = " << cosine(15) << std::endl;
-    std::string num = "15.2";
+    std::string num = "15.2234";
     std::cout << "The number in string is " << num << std::endl;
     std::cout << "The number as a float is " << atof(num.c_str()) << std::endl;
 

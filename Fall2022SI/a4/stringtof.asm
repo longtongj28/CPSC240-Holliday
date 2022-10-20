@@ -80,9 +80,10 @@ pushf
 ;Designate the purpose of selected registers: r8, r9, r10
 mov r8, rdi                   ;Copy the pointer to char data to r8
 mov r9, 0                     ;r9 = array index
-mov r10, 0                    ;r10 = long integer; final answer will be here.
-xorpd xmm15, xmm15 ; Final float
+mov r10, 0                    ;r10 = long integer; final integer will be here.
+xorpd xmm15, xmm15            ; Final answer float
 
+; Checking the first character to see if it's a '+' or '-'
 ;The first byte in the array may be '+' or '-', which are valid numeric characters.
 ;We need to check for the presence of a leading sign.
 cmp byte [r8+1*0], '+'        ;Check for leading plus sign
@@ -95,18 +96,18 @@ cmp byte [r8+1*0], '-'        ;Check for leading minus sign
 jne begin_loop
 mov r9, 1
 
-; '1235.23'
+; we already checked that this is a float (isFloat in asm)
+; '1235.23\0'
 ; 123523 -> integer -> cvtsi2sd into xmm register -> divide by 10 however many decimal places
-; count 2 decimal places
-mov r12, 0 ; num_decimal_places
+; count 2 decimal places 123523/10/10 = 1235.23
+mov r15, 0 ; num_decimal_places
 mov r13, 0 ; This represents if we already decimal place (flag: hit_decimal_place)
 begin_loop:
 cmp byte [r8+1*r9], null      ;Check the termination condition of the loop
 je loop_finished
 ; if we reach the decimal point
-    ; check if equal
-        ; move the index forward
-        ; set hit_decimal_place = True
+      ; move the index forward
+      ; set hit_decimal_place = True
 cmp byte [r8+1*r9], decimal_point
 je HasDecimalPoint
 
@@ -147,7 +148,7 @@ cmp r13, 1
 je IncrementDecimalCounter
 jmp OverIncrementCounter
 IncrementDecimalCounter:
-inc r12
+inc r15
 OverIncrementCounter:
 
 inc r9
@@ -157,8 +158,29 @@ loop_finished:
 
 ; 123445 decimal_place = 2 
 ; TODO: Place 123445 into GPR
+; it's already in r10
+
 ; TODO: Convert GPR to XMM register
+cvtsi2sd xmm15, r10
 ; TODO: Divide the XMM register the number of decimal places
+; From gdb we see that num_decimal_place is always 1 greater
+; sub tract 1 from r15 first
+sub r15, 1
+; for i = 0, i < r15, i++:
+;    divide xmm15 by 10
+
+; save a 10.0
+mov rax, 10
+cvtsi2sd xmm14, rax
+
+mov r10, 0
+forloop:
+cmp r10, r15
+je endForLoop
+divsd xmm15, xmm14
+inc r10
+jmp forloop
+endForLoop:
 ; TODO: Return the answer in xmm0
 
 ;Set the computed value to negative if needed
@@ -168,6 +190,7 @@ neg r10
 
 positive:
 mov rax, r10
+movsd xmm0, xmm15
 ;==================================================================================================================================
 ;Epilogue: restore data to the values held before this function was called.
 popf
