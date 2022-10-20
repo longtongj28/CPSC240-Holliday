@@ -181,8 +181,8 @@ divsd xmm15, xmm14
 inc r10
 jmp forloop
 endForLoop:
-; TODO: Return the answer in xmm0
 
+; TODO: Move this negative number handler so that an input "-15.25" will be converted.
 ;Set the computed value to negative if needed
 cmp byte [r8+1*0], minus      ;Check for leading minus sign
 jne positive
@@ -190,6 +190,7 @@ neg r10
 
 positive:
 mov rax, r10
+; TODO: Return the answer in xmm0
 movsd xmm0, xmm15
 ;==================================================================================================================================
 ;Epilogue: restore data to the values held before this function was called.
