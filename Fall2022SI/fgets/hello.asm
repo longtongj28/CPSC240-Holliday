@@ -26,7 +26,7 @@
 ; Link the two files: g++ -m64 -fno-pie -no-pie -std=c++17 -o good.out good_morning.o hello.o
 ; ./good.out is the executable
 
-
+; "Johnson Tong \n"
 ; Declare external C++ functions & make funct 'hello' visible to other languages & create constant
 extern printf
 

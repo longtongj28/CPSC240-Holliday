@@ -7,7 +7,7 @@
 #include <sys/time.h>
 #include <stdlib.h>
 
-extern double resistance();
+extern "C" double resistance();
 
 int main(int argc, char* argv[])
 {

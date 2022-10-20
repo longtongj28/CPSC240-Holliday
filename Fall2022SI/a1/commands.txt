@@ -3,3 +3,4 @@ r
 n
 n
 p/x $rsp
+p/x &var_a
