@@ -52,7 +52,8 @@ add rdx, 1024
 mov r15, rsp
 mov r14, rdx
 call scanf
-
+pop r15
+pop r14
 ;====================
 ; if you want to try to do scanf in individual blocks.
 ; push qword 0
