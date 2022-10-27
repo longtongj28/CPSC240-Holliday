@@ -1,5 +1,14 @@
 global cosine
+
+extern strlen
+
+sys_write equ 1
+sys_read equ 0
+stdout equ 1
+stdin equ 0
+
 segment .data
+hello db "Hello world", 10, 0
 
 segment .bss
 
@@ -27,6 +36,28 @@ pushf                                                       ;Backup rflags
 ; double cosine(double)
 ; save the user input into a less volatile register ( this is X in the summation )
 movsd xmm15, xmm0
+
+; print out hello world
+mov rax, 0
+mov rdi, hello
+call strlen
+mov r15, rax
+
+mov rax, sys_write
+mov rdi, stdout
+mov rsi, hello
+mov rdx, r15
+syscall
+
+
+
+
+
+
+
+
+
+
 ; The relation between every term k, k+1 is:
 ; -1 * x^2
 ;-------------

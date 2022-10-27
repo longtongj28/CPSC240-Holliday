@@ -68,6 +68,8 @@ welcome db "Welcome to Accurate Cosines by Timothy Vu.", 10, 0
 
 time db "The time is now ", 0
 time2 db " tics.", 10, 0
+; The time is now %lf tics, 523426
+
 
 angle_prompt db "Please enter an angle in degrees and press enter: ", 10, 0
 entered db "You entered ", 0
@@ -194,7 +196,7 @@ syscall
 ;Input char from keyboard one byte at a time.
 
 ;Preloop initialization
-    mov rbx, input_integer_string
+    mov rbx, input_integer_string ; replace with your empty char array (aka string)
     mov r12,0       ;r12 is counter of number of bytes inputted
     push qword 0    ;Storage for incoming byte
 
@@ -408,6 +410,7 @@ mov rdi, r13
 call strlen
 mov r15, rax
 
+; %lf, argument
 ;output the time
 mov rax, sys_write
 mov rdi, stdout
