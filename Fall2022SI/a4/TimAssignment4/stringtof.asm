@@ -82,6 +82,8 @@ mov r8, rdi                   ;Copy the pointer to char data to r8
 mov r9, 0                     ;r9 = array index
 mov r10, 0                    ;r10 = long integer; final integer will be here.
 xorpd xmm15, xmm15            ; Final answer float
+mov r11, 0 ; num_decimal_places
+mov r13, 0 ; This represents if we already decimal place (flag: hit_decimal_place)
 
 ; Checking the first character to see if it's a '+' or '-'
 ;The first byte in the array may be '+' or '-', which are valid numeric characters.
@@ -100,8 +102,6 @@ mov r9, 1
 ; '1235.23\0'
 ; 123523 -> integer -> cvtsi2sd into xmm register -> divide by 10 however many decimal places
 ; count 2 decimal places 123523/10/10 = 1235.23
-mov r11, 0 ; num_decimal_places
-mov r13, 0 ; This represents if we already decimal place (flag: hit_decimal_place)
 begin_loop:
 cmp byte [r8+1*r9], null      ;Check the termination condition of the loop
 je loop_finished
