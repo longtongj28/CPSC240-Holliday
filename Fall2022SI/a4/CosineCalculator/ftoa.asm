@@ -2,6 +2,11 @@
 
 ; Copyright 2022 Diamond Dinh (diamondburned), licensed under the MIT license.
 
+; //Author information
+; //  Author name: Timothy Vu
+; //  Author email: timothy.vu@csu.fullerton.edu
+; //  Author Section: M/W 2:00pm-3:50pm
+
 global ftoa
 
 extern itoa

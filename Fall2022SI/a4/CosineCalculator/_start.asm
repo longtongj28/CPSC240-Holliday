@@ -1,12 +1,12 @@
 ; //****************************************************************************************************************************
-; //Program name: "triangle". This program is called from driver.c and takes in 2 string inputs and 2 float numbers and displays the output through the assembly file
-; //               and calculates and returns the hypotenuse of the two float inputs, and the title and name of the user back from the assembly file to the driver 
+; //Program name: "_start". This program is will output the number of tics from the cpu, take a float input, convert the user input into radians,
+; //               call cosine, and output the results all from pure x86 assembly.
 ; //               Copyright (C) 2022 Timothy Vu.
 ; //                                                                                                                           *
-; //This file is part of the software program "driver".                                                                   *
-; //driver is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
+; //This file is part of the software program "_start".                                                                   *
+; //_start is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License   *
 ; //version 3 as published by the Free Software Foundation.                                                                    *
-; //driver is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
+; //_start is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied          *
 ; //warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.     *
 
 ; //A copy of the GNU General Public License v3 is available here:  <https:;www.gnu.org/licenses/>.                            *
@@ -21,29 +21,30 @@
 ; //  Author Section: M/W 2:00pm-3:50pm
 ; //
 ; //Program information
-; //  Program name: Triangle
-; //  Programming languages: one module in X86, one module in C
-; //  Date program began: 2022 September 10
-; //  Date of last update: 2022 September 15
-; //  Date of reorganization of comments: 2022 September 15
-; //  Files in this program: triangle.asm, driver.cpp, grun.shh, run.sh, gdb.txt
+; //  Program name: _start
+; //  Programming languages: seven modules in X86
+; //  Date program began: 2022 October 23
+; //  Date of last update: 2022 October 26
+; //  Date of reorganization of comments: 2022 October 27
+; //  Files in this program: _start.asm, _math.asm, cosine.asm, ftoa.asm, itoa.asm, stringtof.asm strlen.asm
 ; //  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition.
 ; //
 ; //Purpose
-; //  This file will be called by driver.c and will take two string and two float inputs and outputs the hypotenuse, title, and name through
-; //  the assembly file and send the value of the hypotenuse from the assembly file to the driver.
+; //  The purpose of this file is to output the number of tics from the cpu, take user input, convert the user input into radians, call
+; //  the cosine file, and output the results from pure assembly
 ; //
 ; //This file
-; //   File name: triangle.asm
+; //   File name: _start.asm
 ; //   Language: x86
-; //   Max page width: 164 columns
-; //   Compile: nasm -f elf64 -l triangle.lis -o triangle.o triangle.asm
-; //   Linker: g++ -m64 -fno-pie -no-pie -o run.out -std=c17 driver.o triangle.o
+; //   Max page width: 172 columns
+; //   Compile: nasm -f elf64 -l _start.lis -o _start.o _start.asm 
+; //   Linker: ld -o final.out _start.o strlen.o cosine.o itoa.o _math.o ftoa.o stringtof.o 
 ; //
 ; //=======1=========2=========3=========4=========5=========6=========7=========8=========9=========0=========1=========2=========3**
 ; //
 ; //
 ; //===== Begin code area ===========================================================================================================
+
 extern strlen
 extern itoa
 extern cosine
@@ -68,8 +69,6 @@ welcome db "Welcome to Accurate Cosines by Timothy Vu.", 10, 0
 
 time db "The time is now ", 0
 time2 db " tics.", 10, 0
-; The time is now %lf tics, 523426
-
 
 angle_prompt db "Please enter an angle in degrees and press enter: ", 10, 0
 entered db "You entered ", 0
@@ -78,8 +77,7 @@ radians db "The equivalent radians is ", 0
 
 cosine_prompt db "The cosine of those degrees is ", 0
 
-time_now db "The time is now ", 0
-time_now2 db " seconds.", 10, 0
+bye db "Have a nice day. Bye", 10, 0
 
 segment .bss
 
@@ -192,11 +190,10 @@ mov rsi, angle_prompt
 mov rdx, r15
 syscall
 
-;Strategy based on Jorgensen, Chapter 13
 ;Input char from keyboard one byte at a time.
 
 ;Preloop initialization
-    mov rbx, input_integer_string ; replace with your empty char array (aka string)
+    mov rbx, input_integer_string
     mov r12,0       ;r12 is counter of number of bytes inputted
     push qword 0    ;Storage for incoming byte
 
@@ -227,10 +224,6 @@ Begin_loop:         ;This is the one point of entry into the loop structure.
 jmp Begin_loop
 
 Exit_loop:
-    ;The algorithm implemented above allows upto (Numeric_string_array_size - 1) bytes to be entered into the 
-    ;destination array, thereby, reserving one byte for the null character.  However, if the user does
-    ;enter more than (Numeric_string_array_size - 1) bytes of data then the excess bytes are read and discarded.
-    ;The algorithm was adapted from Jorgensen, Chapter 13, Section 13.4.1
     mov byte [rbx], 0        ;Append the null character.
 
     pop rax          ;Return the stack to its former state.
@@ -288,13 +281,6 @@ mov rdi, stdout
 mov rsi, radians
 mov rdx, r15
 syscall
-
-; ;output newline
-; mov rax, sys_write
-; mov rdi, stdout
-; mov rsi, newline
-; mov rdx, 1
-; syscall
 
 ;get radian value
 mov rbx, 180
@@ -372,16 +358,16 @@ mov rdx, 1
 syscall
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;get strlen of time_now
+;get strlen of time
 mov rax, 0
-mov rdi, time_now
+mov rdi, time
 call strlen
 mov r15, rax
 
-;output time_now
+;output time
 mov rax, sys_write
 mov rdi, stdout
-mov rsi, time_now
+mov rsi, time
 mov rdx, r15
 syscall
 
@@ -410,7 +396,6 @@ mov rdi, r13
 call strlen
 mov r15, rax
 
-; %lf, argument
 ;output the time
 mov rax, sys_write
 mov rdi, stdout
@@ -418,16 +403,29 @@ mov rsi, r13
 mov rdx, r15
 syscall
 
-;get strlen of time_now2
+;get strlen of time2
 mov rax, 0
-mov rdi, time_now2
+mov rdi, time2
 call strlen
 mov r15, rax
 
-;output time_now2
+;output time2
 mov rax, sys_write
 mov rdi, stdout
-mov rsi, time_now2
+mov rsi, time2
+mov rdx, r15
+syscall
+
+;get strlen of bye
+mov rax, 0
+mov rdi, bye
+call strlen
+mov r15, rax
+
+;output bye
+mov rax, sys_write
+mov rdi, stdout
+mov rsi, bye
 mov rdx, r15
 syscall
 
