@@ -116,7 +116,6 @@ mov rax, 0
 mov rdi, welcome
 call strlen
 mov r15, rax
-
 ;output welcome
 mov rax, sys_write
 mov rdi, stdout

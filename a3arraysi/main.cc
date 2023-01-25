@@ -51,6 +51,7 @@ int main(int argc, char *argv[])
   d_ptr_arr[5] = 20.0;
 // Show the ascii value of each of the first 8 bytes of the array. [3]
 
+
   printf("Welcome to High Speed Array Summation by Johnson Tong.\n"
          "Software Licensed by GNU GPL 3.0\n"
          "Version 1.0 released as of 03-17-2021.\n");

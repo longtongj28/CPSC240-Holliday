@@ -1,22 +1,24 @@
-global cosine
-
-extern strlen
-extern sort
-
-sys_write equ 1
-sys_read equ 0
-stdout equ 1
-stdin equ 0
+extern printf
+extern scanf
+global perimeter
 
 segment .data
-hello db "Hello world", 10, 0
+welcome db "Welcome to a friendly assembly program by Johnson Tong",10,0
+welcome2 db "This program will compute the perimeter and the average side length of a rectangle.", 10, 0
+
+one_float_format db "%lf",0
+three_float_format db "%lf %lf %lf", 0
+
+four dq 4.0
 
 segment .bss
 
 segment .text
 
-cosine:
+perimeter: ; RENAME THIS TO THE NAME OF YOUR MODULE/FUNCTION THAT YOU ARE WRITING
 
+;Prolog ===== Insurance for any caller of this assembly module ========================================================
+;Any future program calling this module that the data in the caller's GPRs will not be modified.
 push rbp
 mov  rbp,rsp
 push rdi                                                    ;Backup rdi
@@ -34,79 +36,9 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-; double cosine(double)
-; save the user input into a less volatile register ( this is X in the summation )
-movsd xmm15, xmm0
-; The relation between every term k, k+1 is:
-; -1 * x^2
-;-------------
-;(2k+2)(2k+1)
-; Start the term from 1.0 and multiply the recurrance relation against it until terminal
+; WRITE YOUR CODE HERE!!!!!
 
-; Remember k is what iteration we are on
-; x is the user inputted number
-
-; Current (first) term of maclaurin series is 1.0 ( plug in k = 0 )
-mov rax, 1
-cvtsi2sd xmm14, rax
-; we'll need the numbers 2.0, -1.0, and 1.0 to multiply floats
-; (from 2k+1 and 2k+2)
-mov rax, 1
-cvtsi2sd xmm13, rax
-mov rax, 2
-cvtsi2sd xmm12, rax
-mov rax, -1
-cvtsi2sd xmm5, rax
-; start k at 0, since we already have the first term of the sequence
-mov r15, 0
-cvtsi2sd xmm11, r15
-; stop at 10,000,000
-mov r14, 10000000
-; Total sum so far
-xorpd xmm10, xmm10
-beginloop:
-; Check if r15 (k) has hit r14 (10000000)
-cmp r15, r14
-je end
-; Otherwise, add the current term of the sequence
-addsd xmm10, xmm14
-; Then, compute the next term of the sequence (place into xmm14)
-; 2k+1 - xmm12 * xmm11 + xmm13
-; creating temporary register for calculations xmm9
-movsd xmm9, xmm12
-mulsd xmm9, xmm11
-addsd xmm9, xmm13
-
-; 2k+2 - xmm12 * xmm11 + xmm12
-; creating temporary register for calculations xmm8
-movsd xmm8, xmm12
-mulsd xmm8, xmm11
-addsd xmm8, xmm12
-
-; (2k+1) * (2k+2) - xmm8 * xmm9
-mulsd xmm8, xmm9
-
-; X^2 - user input at xmm15
-; creating temporary register for calculations xmm7
-movsd xmm7, xmm15
-mulsd xmm7, xmm7
-
-; X^2
-; ----
-; (2k+1) (2k+2) - result will be in xmm7
-divsd xmm7, xmm8
-; multiply -1 against this relation
-mulsd xmm7, xmm5
-; multiply the recurrance relation against the current term and set the current term to result
-mulsd xmm14, xmm7
-inc r15
-cvtsi2sd xmm11, r15
-jmp beginloop
-
-end:
-movsd xmm0, xmm10
-
-
+;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
 pop r15                                                     ;Restore r15

@@ -44,11 +44,13 @@
 extern double control();  // assembly module that will direct calls to other functions
                           // that will fill an array and add its contents
 
+
 int main(int argc, char *argv[])
 {
   printf("Welcome to High Speed Array Summation by Johnson Tong.\n"
          "Software Licensed by GNU GPL 3.0\n"
          "Version 1.0 released as of 03-17-2021.\n");
+
   double answer = control();  // the control module will return the sum of the array contents
   printf("The main has received this number %.10lf and will keep it.\n", answer);
   printf("Thank you for using High Speed Array Software.\n"
