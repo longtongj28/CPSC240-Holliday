@@ -45,17 +45,21 @@ extern scanf
 extern fill
 extern Display
 extern sum
+extern append
 
 global control
 
 segment .data
-welcome_control db "Welcome to HSAS. The accuracy and reliability of this program is guaranteed by Johnson Tong.",10,0
+welcome_control db "Welcome to HSAS. ≙ The accuracy and reliability of this program is guaranteed by Johnson Tong.",10,0
 present_numbers db "The numbers you entered are these: ",10,0
 the_sum_is db "The sum of these values is %.10lf.", 10 ,0
 exit_message db "The control module will now return the sum to the caller module.",10,0
+one_int_format db "%d",10, 0
 
 segment .bss  ;Reserved for uninitialized data
 the_array resq 6 ; array of 6 quad words reserved before run time.
+the_array_2 resq 6
+result_arr resq 12
 ; the_array -> 0x123241252
 ; the_array[0] -> 0x123241252
 ; the_array[1] -> 0x123241252 + 8
@@ -100,6 +104,27 @@ call fill
 mov r15, rax
 pop rax
 
+; Fill the array using the fill module
+push qword 0
+mov rax, 0
+mov rdi, the_array_2 ; array passed in as first param
+mov rsi, 6         ; array size passed in as second param
+call fill
+mov r14, rax
+pop rax
+
+; func - append(arr1, arr2, arr3, s1, s2)
+push qword 0
+mov rdi, the_array
+mov rsi, the_array_2
+mov rdx, result_arr
+mov rcx, r15
+mov r8, r14
+call append
+mov r15, rax
+pop rax
+
+
 ;"The numbers you entered are these: "
 push qword 0
 mov rax, 0
@@ -109,7 +134,7 @@ pop rax
 ; Display the numbers in the_array using the Display module
 push qword 0
 mov rax, 0
-mov rdi, the_array
+mov rdi, result_arr
 mov rsi, r15
 call Display
 pop rax

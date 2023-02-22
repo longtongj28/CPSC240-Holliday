@@ -1,27 +1,17 @@
 extern printf
 extern scanf
-global perimeter
-
-my_constant equ 10
+global append
 
 segment .data
 welcome db "Welcome to a friendly assembly program by Johnson Tong",10,0
-welcome2 db "This program will compute the perimeter and the average side length of a rectangle.", 10, 0
-prompt db "Enter 2 numbers", 10, 0
-prompt2 db "Enter a positive floating point num", 10, 0
 
-example db "%lf and %lf", 10, 0
-
-one_float_format db "%lf",0
-three_float_format db "%lf %lf %lf", 0
-
-four dq 4.0
+one_int_format db "%d",10, 0
 
 segment .bss
 
 segment .text
 
-perimeter: ; RENAME THIS TO THE NAME OF YOUR MODULE/FUNCTION THAT YOU ARE WRITING
+append: ; RENAME THIS TO THE NAME OF YOUR MODULE/FUNCTION THAT YOU ARE WRITING
 
 ;Prolog ===== Insurance for any caller of this assembly module ========================================================
 ;Any future program calling this module that the data in the caller's GPRs will not be modified.
@@ -42,88 +32,36 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-push qword 0
-; WRITE YOUR CODE HERE!!!!!
+; func - append(arr1, arr2, arr3, s1, s2)
+; returns the total number of elements
+mov r15, rdi ; take arr1 from the parameters
+mov r14, rsi
+mov r13, rdx
+mov r12, rcx
+mov r11, r8
 
-; Ask the user to input a number
-; qword -> word 64/4 = 16 bits / 2 bytes
-
-; "Enter 2 numbers"
-push qword 0
-mov rdi, prompt
-call printf
-pop rax
-
-; Input a float
-;                  rdi                  rsi          xmm0
-; void scanf(string format_string, int* location, double a2)
-push qword 0 ; reserves 64 bits / 8 bytes on the top of stack
-mov rax, 0 ; number of xmm registers that will be used by next function call
-mov rdi, one_float_format
-mov rsi, rsp
-call scanf
-movsd xmm15, [rsp]
-pop rax
-
-push qword 0 ; reserves 64 bits / 8 bytes on the top of stack
-mov rax, 0 ; number of xmm registers that will be used by next function call
-mov rdi, one_float_format
-mov rsi, rsp
-call scanf
-movsd xmm14, [rsp]
-pop rax
+; write a loop that inputs all of the numbers
+; from array 1 into array 3
+; loop until we reach r12
+mov r10, 0
+loop1beg:
+    ; xorpd xmm0, xmm0 ; resets a register to 0.0
+    cmp r10, r12
+    je outLoop1
+    ; your code goes here
+    ; arr3[i] = arr1[i]
+    movsd xmm15, [r15 + 8*r10]
+    movsd [r13 + 8*r10], xmm15
+    inc r10
+    jmp loop1beg
+outLoop1:
+; write another loop that inputs all of the numbers
+; from array 2 into array 3
 
 
-push qword 0
-mov rax, 2
-mov rdi, example
-movsd xmm0, xmm15
-movsd xmm1, xmm14
-call printf
-pop rax
-; a^2 + b^2 = c^2
-; c = sqrt(a^2 + b^2)
-; square a
-; square b
-; add square a + square b
-; sqrt
-; movsd xmm0
-
-; If the number is negative,
-; tell the user to input again
-; keep doing until the number is valid
-
-; while the input is negative,
-; keep asking for inputs
-
-; a zero to check against the user input
-; negative numbers are less than 0
-; xorpd "zeroes" out an xmm register
-xorpd xmm13, xmm13 ; 0.0
-beginning:
-    ; ask the user to input
-    push qword 0
-    mov rdi, prompt2
-    call printf
-    pop rax
-    ; take in the input with scanf
-    push qword 0 ; reserves 64 bits / 8 bytes on the top of stack
-    mov rax, 0 ; number of xmm registers that will be used by next function call
-    mov rdi, one_float_format
-    mov rsi, rsp
-    call scanf
-    movsd xmm14, [rsp]
-    pop rax
-    ; validate it - less than 0 is - True
-    ; floating point nums comparison - ucomisd
-    ; compare user input and 0.0
-    ucomisd xmm14, xmm13
-    ; if it's less than 0, jump back to beginning
-    jb beginning
-    ; otherwise, continue
-;
-movsd xmm0, xmm14
-pop rax
+; optional -> write a single loop that inputs all of the numbers
+; from array 1 and array 2 into array 3
+mov rax, r10
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx

@@ -52,6 +52,6 @@ int main(int argc, char* argv[])
 {
   double p = 0.0;
   p = perimeter();
-  printf("Hello %lf", p);
+  printf("Hello %lf\n", p);
   return 0;
 }

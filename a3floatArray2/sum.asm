@@ -31,37 +31,25 @@
 ;  Status: Finished.  The program was tested extensively with no errors in Tuffix 2020 Edition.
 ;
 ;This file
-;   File name: control.asm
+;   File name: sum.asm
 ;   Language: X86 with Intel syntax.
 ;   Max page width: 132 columns
-;   Assemble: nasm -f elf64 -l control.lis -o control.o control.asm
+;   Assemble: nasm -f elf64 -l sum.lis -o sum.o sum.asm
 ;   Link: g++ -m64 -no-pie -o addFloatArray.out control.o fill.o main.o sum.o display.o -std=c++17
-;   Purpose: This is the central module that will direct calls to different functions including Display, sum, and fill.
-;            Using those functions, the sum of all the elements in a user created array will be calculated and be
-;            returned to the caller of this function (in main.c).
-;========================================================================================================
-extern printf
-extern scanf
-extern fill
-extern Display
-extern sum
+;   Purpose: Defines the sum function, which will take an array and number of elements to traverse and add them together.
+;            The total is returned to the caller (control module).
 
-global control
+;===== Begin code area ================================================================================================
+
+global sum
 
 segment .data
-welcome_control db "Welcome to HSAS. The accuracy and reliability of this program is guaranteed by Johnson Tong.",10,0
-present_numbers db "The numbers you entered are these: ",10,0
-the_sum_is db "The sum of these values is %.10lf.", 10 ,0
-exit_message db "The control module will now return the sum to the caller module.",10,0
 
 segment .bss  ;Reserved for uninitialized data
-the_array resq 6 ; array of 6 quad words reserved before run time.
-; the_array -> 0x123241252
-; the_array[0] -> 0x123241252
-; the_array[1] -> 0x123241252 + 8
+
 segment .text ;Reserved for executing instructions.
 
-control:
+sum:
 
 ;Prolog ===== Insurance for any caller of this assembly module ========================================================
 ;Any future program calling this module that the data in the caller's GPRs will not be modified.
@@ -82,64 +70,29 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-push qword 0  ; remain on the boundary
+push qword 0 ; remain on the boundary
+; Taking information from parameters
+mov r15, rdi  ; This holds the first parameter (the array)
+mov r14, rsi  ; This holds the second parameter (the number of elements in the array, not size)
 
-;"Welcome to HSAS. The accuracy and reliability of this program is guaranteed by Johnson Tong."
-push qword 0
-mov rax, 0
-mov rdi, welcome_control
-call printf
-pop rax
 
-; Fill the array using the fill module
-push qword 0
-mov rax, 0
-mov rdi, the_array ; array passed in as first param
-mov rsi, 6         ; array size passed in as second param
-call fill
-mov r15, rax
-pop rax
+; loop the array and add each value to a total.
+mov rax, 1 ; one xmm register will be used
+mov rdx, 0
+cvtsi2sd xmm15, rdx ; convert the 0 in rdx to something xmm can read
+mov r13, 0 ; for loop counter goes up to 5, starting at 0
+beginLoop:
+  cmp r13, r14  ;comparing increment with 6 (the size of array)
+  je outOfLoop
+  addsd xmm15, [r15 + 8*r13]; ;add to xmm15 the value at array[counter]
+  inc r13  ;increment loop counter
+  jmp beginLoop
+outOfLoop:
 
-;"The numbers you entered are these: "
-push qword 0
-mov rax, 0
-mov rdi, present_numbers
-call printf
-pop rax
-; Display the numbers in the_array using the Display module
-push qword 0
-mov rax, 0
-mov rdi, the_array
-mov rsi, r15
-call Display
-pop rax
-; Computing the sum...
-push qword 0
-mov rax, 0
-mov rdi, the_array
-mov rsi, 6
-call sum ;The sum will be in xmm0
-movsd xmm15, xmm0
-pop rax
 
-; The sum of these values is ....
-push qword 0
-mov rax, 1
-mov rdi, the_sum_is
-movsd xmm0, xmm15
-call printf
-pop rax
+pop rax ;push counter at the beginning
 
-; The sum will be returned to the caller module
-push qword 0
-mov rax, 0
-mov rdi, exit_message
-call printf
-pop rax
-
-pop rax ; counter push at the beginning
-
-movsd xmm0, xmm15
+movsd xmm0, xmm15 ; returning sum to caller
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
