@@ -32,7 +32,7 @@
 ;  Assembler used for testing: Nasm version 2.14.02
 ;  Prototype: bool isfloat(char *);
 ;
-;Purpose
+; Purpose
 ;  This function wil accept a string (array of char) and verify that it can be converted to a corresponding 64-bit 
 ;  float number or not converted to a float number.
 ;
