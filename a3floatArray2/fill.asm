@@ -110,32 +110,34 @@ beginLoop:
   cmp r14, r13 ; we want to exit loop when we hit the size of array
   je outOfLoop
   mov rax, 0
-  mov rdi, one_string_format
+  mov rdi, float_format
   push qword 0
   mov rsi, rsp
   call scanf
   cdqe
   cmp rax, -1  ; loop termination condition: user enters cntrl + d.
+  pop r12
   je outOfLoop
+  mov [r15 + 8*r13], r12  ;at array[counter], place the input number
+  inc r13
   ; converting string to float
-  ; pop r12 ; string is now in r12
   ; Take in a String
   ; Check if it's a float
-  mov rdi, rsp
-  call isfloat
-  ; if float continue, otherwise jump back to beginning
-  cmp rax, -1
-  jne beginLoop
-  ; Convert it to a float
-  mov rdi, rsp
-  call atof
-  ; result is in xmm0
-  movsd [r15 + 8*r13], xmm0  ;at array[counter], place the input number
-  inc r13  ;increment loop counter
-  pop rax
+  ; mov rdi, rsp
+  ; call isfloat
+  ; ; if float continue, otherwise jump back to beginning
+  ; cmp rax, -1
+  ; jne beginLoop
+  ; ; Convert it to a float
+  ; mov rdi, rsp
+  ; call atof
+  ; ; result is in xmm0
+  ; movsd [r15 + 8*r13], xmm0  ;at array[counter], place the input number
+  ; inc r13  ;increment loop counter
+  ; pop rax
   jmp beginLoop
 outOfLoop:
-
+; use jumps to skip certain statements
 ; Clear the input stream of "cntrl+d"
 mov rax, 0
 mov rdi, [stdin]

@@ -120,6 +120,7 @@ hello:
   ;call scanf
   ; === old style ===
 
+  ; Johnson Tong\n -> Johnson Tong\0
   ; Indicate we have no floating point arguments to pass to external function
   mov rax, 0
 
@@ -150,6 +151,7 @@ hello:
   mov rsi, message2 ; Move message2 into second argument register rsi
   call printf ; Call external function printf
 
+  ; Full example=======================
   mov rax, 0 ; Indicate we have no floating point arguments to pass to external function
   mov rdi, title ; Move first argument into argument register rdi
   mov rsi, INPUT_LEN ; Provide fgets with the second argument, the size of the bytes reserved, then move it into second argument register rsi
@@ -161,7 +163,7 @@ hello:
   call strlen ; Call external function strlen, which returns the length of the string leading up to '\0'
   sub rax, 1 ; The length is stored in rax. Here we subtract 1 from rax to obtain the location of '\n'
   mov byte [title + rax], 0 ; Replace the byte where '\n' exits with '\0'
-
+  ; Full example======================
 
   mov rax, 0 ; Indicate 0 floating point arguments
   mov rdi, format ; Move string format argument into register rdi

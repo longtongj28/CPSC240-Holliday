@@ -1,17 +1,22 @@
 extern printf
 extern scanf
-global append
+global perimeter
 
 segment .data
 welcome db "Welcome to a friendly assembly program by Johnson Tong",10,0
+welcome2 db "This program will compute the perimeter and the average side length of a rectangle.", 10, 0
 
-one_int_format db "%d",10, 0
+one_float_format db "%lf",0
+three_float_format db "%lf %lf %lf", 0
+
+four dq 4.0
 
 segment .bss
+array1: resq 12
 
 segment .text
 
-append: ; RENAME THIS TO THE NAME OF YOUR MODULE/FUNCTION THAT YOU ARE WRITING
+perimeter: ; RENAME THIS TO THE NAME OF YOUR MODULE/FUNCTION THAT YOU ARE WRITING
 
 ;Prolog ===== Insurance for any caller of this assembly module ========================================================
 ;Any future program calling this module that the data in the caller's GPRs will not be modified.
@@ -32,46 +37,28 @@ push r15                                                    ;Backup r15
 push rbx                                                    ;Backup rbx
 pushf                                                       ;Backup rflags
 
-; func - append(arr1, arr2, arr3, s1, s2)
-; returns the total number of elements
-mov r15, rdi ; arr1
-mov r14, rsi ; arr2
-mov r13, rdx ; res_arr
-mov r12, rcx ; arr1_size
-mov r11, r8 ; arr2_size
+; If this "module" is a function,
+; save the parameters here (rdi, rsi, rdx, rcx, r8, r9) (xmm0, xmm1,...)
 
-; write a loop that inputs all of the numbers
-; from array 1 into array 3
-; loop until we reach r12
-mov r10, 0
-; xorpd xmm0, xmm0 ; resets a register to 0.0
-loop1beg:
-    cmp r10, r12
-    je outLoop1
-    ; your code goes here
-    ; arr3[i] = arr1[i]
-    movsd xmm15, [r15 + 8*r10]
-    movsd [r13 + 8*r10], xmm15
-    inc r10
-    jmp loop1beg
-outLoop1:
-; write another loop that inputs all of the numbers
-; from array 2 into array 3
-mov r9, 0
-loop2beg:
-    cmp r9, r11
-    je outLoop2
-    ; your code goes here
-    ; arr3[i] = arr1[i]
-    movsd xmm15, [r14 + 8*r9]
-    movsd [r13 + 8*r10], xmm15
-    inc r9
-    inc r10
-    jmp loop2beg
-outLoop2:
-; optional -> write a single loop that inputs all of the numbers
-; from array 1 and array 2 into array 3
-mov rax, r10
+; To generate 6 random qwords
+; for i = 0 until 6, inc:
+;   generate random number
+;   arr[i] = random num
+;   store the random number in array
+
+mov r15, 0
+beginLoop:
+    cmp r15, 6
+    je exitLoop
+
+    rdrand r12   ;generate qword
+    mov [array1 + 8*r15], r12; Store that qword in array1
+
+    inc r15
+    jmp beginLoop
+exitLoop:
+
+
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
