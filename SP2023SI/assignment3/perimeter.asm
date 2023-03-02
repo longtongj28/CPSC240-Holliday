@@ -1,5 +1,7 @@
 extern printf
 extern scanf
+extern qsort
+extern compar
 global perimeter
 
 segment .data
@@ -52,12 +54,29 @@ beginLoop:
     je exitLoop
 
     rdrand r12   ;generate qword
+
+    mov rbx, r12
+    ; Check for isNan
+    shr rbx, 52 ; (shift r12 to the right by the size of the mantissa)
+    ; if r12 == 7FF (pos nan) or r12 == FFF (neg nan)
+    cmp rbx, 0x7FF ; check if pos nan
+    je beginLoop
+    cmp rbx, 0xFFF ; check if neg nan
+    je beginLoop
+
     mov [array1 + 8*r15], r12; Store that qword in array1
 
     inc r15
     jmp beginLoop
 exitLoop:
-
+    
+; void qsort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void*))
+; Sorting array 1
+mov rdi, array1
+mov rsi, 6
+mov rdx, 8
+mov rcx, compar
+call qsort
 
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags

@@ -13,8 +13,10 @@ nasm -f elf64 -l perimeter.lis -o perimeter.o perimeter.asm -g -gdwarf
 echo "compile rectangle.c using gcc compiler standard 2011"
 gcc -c -Wall -m64 -no-pie -o rectangle.o rectangle.c -std=c11 -g
 
+gcc -c -Wall -m64 -no-pie -o compar.o compar.c -std=c11 -g
+
 echo "Link object files using the gcc Linker standard 2011"
-gcc -m64 -no-pie -o final-perimeter.out perimeter.o rectangle.o -std=c11 -g
+gcc -m64 -no-pie -o final-perimeter.out perimeter.o rectangle.o compar.o -std=c11 -g
 
 echo "Run the Rectange Program:"
 gdb ./final-perimeter.out
