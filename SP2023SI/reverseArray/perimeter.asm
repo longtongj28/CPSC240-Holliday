@@ -13,8 +13,10 @@ three_float_format db "%lf %lf %lf", 0
 
 four dq 4.0
 
+array1 dq 5.0, 2.5, 2.6, 5.2, 6.2
+
 segment .bss
-array1: resq 12
+array2: resq 5
 
 segment .text
 
@@ -42,44 +44,43 @@ pushf                                                       ;Backup rflags
 ; If this "module" is a function,
 ; save the parameters here (rdi, rsi, rdx, rcx, r8, r9) (xmm0, xmm1,...)
 
-; To generate 6 random qwords
-; for i = 0 until 6, inc:
-;   generate random number
-;   arr[i] = random num
-;   store the random number in array
+; array1 and array2 of the same size
+; pointer a (starts from the end of array1)
+; decrement a while traversing
 
-mov r15, 0
+; array1 - pointer a = 5
+; 0 1 2 3 4 5
+; arrar2 - result array - pointer b = 0
+; 0 1 2 3 4 5
+
+; a = 5
+; b = 0
+; for a = 5, a < 0, a--;b++:
+;     array2[b] = array1[a]
+
+mov r15, 4
+mov r14, 0
 beginLoop:
-    cmp r15, 6
-    je exitLoop
+    cmp r15, 0
+    jl endLoop
 
-    rdrand r12   ;generate qword
+    movsd xmm15, [array1 + 8*r15]
+    movsd [array2 + 8*r14], xmm15
 
-    mov rbx, r12
-    ; Check for isNan
-    shr rbx, 52 ; (shift r12 to the right by the size of the mantissa)
-    ; if r12 == 7FF (pos nan) or r12 == FFF (neg nan)
-    cmp rbx, 0x7FF ; check if pos nan
-    je beginLoop
-    cmp rbx, 0xFFF ; check if neg nan
-    je beginLoop
-
-    mov [array1 + 8*r15], r12; Store that qword in array1
-
-    inc r15
+    dec r15
+    inc r14
     jmp beginLoop
-exitLoop:
-    
-; void qsort(void *base, size_t nitems, size_t size, int (*compar)(const void *, const void*))
-; Sorting array 1
-mov rdi, array1 ;array1's address
-mov rsi, 6 ;number of items
-mov rdx, 8 ;bytes per item
-mov rcx, compar ;comparison function to show qsort how to compare each element in our array
-call qsort
+endLoop:
 
 
- 
+; func manager():
+;     array1 = 1 2 3;
+;     perimeter(array1);
+
+; func perimeter(array1):
+;    array1 = 3 4 5
+;    return array1
+;
 ;===== Restore original values to integer registers ===================================================================
 popf                                                        ;Restore rflags
 pop rbx                                                     ;Restore rbx
